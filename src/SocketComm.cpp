@@ -39,12 +39,14 @@ void SocketListener::Listen(uint16_t portNum) {
     UDPsocket udpSocket = SDLNet_UDP_Open(portNum);
     if (!udpSocket) {
         std::cerr << "SDLNet_UDP_Open: " << SDLNet_GetError() << std::endl;
+        SocketListener::_running = false;
         return;
     }
     // allocate a packet
     UDPpacket* packet = SDLNet_AllocPacket(MAX_PACKET_SIZE);
     if (!packet) {
         std::cerr << "Failed to allocate packet: " << SDLNet_GetError() << std::endl;
+        SocketListener::_running = false;
         return;
     }
 
@@ -56,6 +58,14 @@ void SocketListener::Listen(uint16_t portNum) {
 
         std::cout << "Izpis v loopu\n";
 
+        int numReceived = SDLNet_UDP_Recv(udpSocket, packet);
+        if (numReceived > 0) {
+            std::cout << "Received packet of size " << packet->len << " bytes.\n";
+        } else if (numReceived < 0) {
+            std::cerr << "SDLNet_UDP_Recv error: " << SDLNet_GetError() << std::endl;
+            SocketListener::_running = false;  // Stop the loop on error
+        }
+
         // TODO: packet handling (send to a queue with mutex)
         // TODO: implement logging system
 
@@ -64,7 +74,11 @@ void SocketListener::Listen(uint16_t portNum) {
 
     }
 
+    std::cout << "Exiting Listen loop...\n";
+
+    // cleannup
     SDLNet_FreePacket(packet);
+    SDLNet_UDP_Close(udpSocket);
 
     std::cout << "Na konc funkcije Listen\n";
 
