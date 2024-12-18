@@ -26,9 +26,13 @@ int SocketListener::Start(uint16_t portNum) {
 
 // stop and close thread
 void SocketListener::Stop() {
+    std::cout << "Closing listener thread (function Stop())..."  << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                   std::chrono::system_clock::now().time_since_epoch()).count() << '\n';
     SocketListener::_running = false;
 
     if(SocketListener::workThread && SocketListener::workThread->joinable()) {
+        std::cout << "Joining the thread... (function Stop())..."  << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                   std::chrono::system_clock::now().time_since_epoch()).count() << '\n';
         SocketListener::workThread->join();
     }
     std::cout << "Socket listener closed!\n";
@@ -56,7 +60,7 @@ void SocketListener::Listen(uint16_t portNum) {
     SocketListener::_running = true;
     while(SocketListener::_running) {
 
-        std::cout << "Izpis v loopu\n";
+        //std::cout << "Izpis v loopu\n";
 
         int numReceived = SDLNet_UDP_Recv(udpSocket, packet);
         if (numReceived > 0) {
@@ -74,7 +78,8 @@ void SocketListener::Listen(uint16_t portNum) {
 
     }
 
-    std::cout << "Exiting Listen loop...\n";
+    std::cout << "Exiting Listen loop... "  << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                   std::chrono::system_clock::now().time_since_epoch()).count() << '\n';
 
     // cleannup
     SDLNet_FreePacket(packet);

@@ -16,15 +16,16 @@ int main(int argc, char *argv[]) {
     std::cout << "Starting Socket Listener...\n";
     SocketListener::Start(42069);
 
-    // Keep main thread alive
-    while (SocketListener::_running) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 
-    std::cout << "Main loop exited. Cleaning up...\n";
+    std::cout << "Main loop exited. Cleaning up... " << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                   std::chrono::system_clock::now().time_since_epoch()).count() << '\n';
+                   
     SocketListener::Stop();
     SDLUtils::cleanup();
 
+std::cout << "EXITING MAIN LOOP! " << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                   std::chrono::system_clock::now().time_since_epoch()).count() << '\n';
 
     return 0;
 }
