@@ -7,6 +7,15 @@
 #define MAX_PACKET_SIZE 512
 
 
+std::string formatIP(Uint32 ip) {
+    std::string out;
+    for(int i = 0; i < 4; i++) {
+        out += std::to_string(((ip & (0xff << i*8)) >> i*8)) + ((i != 3) ? "." : "");
+    }
+
+    return out;
+}
+
 
 // -------------------------------------------------//
 //                                                  //
@@ -60,11 +69,18 @@ void SocketListener::Listen(uint16_t portNum) {
     SocketListener::_running = true;
     while(SocketListener::_running) {
 
-        //std::cout << "Izpis v loopu\n";
-
         int numReceived = SDLNet_UDP_Recv(udpSocket, packet);
         if (numReceived > 0) {
+            // dump packet data
             std::cout << "Received packet of size " << packet->len << " bytes.\n";
+            std::cout << "Packet content: " << packet->data << "\n";
+            std::cout << "Other packet data: \n" << 
+                "\tSource address: " << formatIP(packet->address.host) << ":" << packet->address.port << "\n" <<
+                "\tChannel: " << packet->channel << "\n" <<
+                "\tStatus: " << packet->status << "\n" <<
+                "\tMaxLen: " << packet->maxlen << "\n";
+            std::cout << "\n";
+            
         } else if (numReceived < 0) {
             std::cerr << "SDLNet_UDP_Recv error: " << SDLNet_GetError() << std::endl;
             SocketListener::_running = false;  // Stop the loop on error

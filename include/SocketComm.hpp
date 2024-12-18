@@ -47,6 +47,7 @@ class SocketSpeaker {
 
 public:
     static bool _running;
+    static int Start(uint16_t);
     static void Speak(uint16_t);
     static void Stop();
 };
