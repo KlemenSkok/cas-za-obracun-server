@@ -28,13 +28,19 @@ std::unique_ptr<std::thread> SocketListener::workThread = nullptr;
 
 
 // open socket and start thread
-int SocketListener::Start(uint16_t portNum) {
-    SocketListener::workThread = std::make_unique<std::thread>(&SocketListener::Listen, portNum);
-    return 0;
+void SocketListener::Start(uint16_t portNum) {
+
+    // open the passed port
+    UDPsocket socket = SDLNet_UDP_Open(portNum);
+    if (!socket) {
+        throw std::runtime_error(SDLNet_GetError());
+    }
+
+    SocketListener::workThread = std::make_unique<std::thread>(&SocketListener::Listen, socket);
 }
 
 // stop and close thread
-void SocketListener::Stop() {
+void SocketListener::Stop() noexcept {
     std::cout << "Closing listener thread (function Stop())..."  << std::chrono::duration_cast<std::chrono::nanoseconds>(
                    std::chrono::system_clock::now().time_since_epoch()).count() << '\n';
     SocketListener::_running = false;
@@ -47,14 +53,8 @@ void SocketListener::Stop() {
     std::cout << "Socket listener closed!\n";
 }
 
-void SocketListener::Listen(uint16_t portNum) {
-    // open passed socket
-    UDPsocket udpSocket = SDLNet_UDP_Open(portNum);
-    if (!udpSocket) {
-        std::cerr << "SDLNet_UDP_Open: " << SDLNet_GetError() << std::endl;
-        SocketListener::_running = false;
-        return;
-    }
+void SocketListener::Listen(UDPsocket socket) noexcept {
+
     // allocate a packet
     UDPpacket* packet = SDLNet_AllocPacket(MAX_PACKET_SIZE);
     if (!packet) {
@@ -63,13 +63,13 @@ void SocketListener::Listen(uint16_t portNum) {
         return;
     }
 
-    std::cout << "Listening on socket " << portNum << "\n";
+    std::cout << "Listening on socket." << "\n";
 
     // start after successful initialization
     SocketListener::_running = true;
     while(SocketListener::_running) {
 
-        int numReceived = SDLNet_UDP_Recv(udpSocket, packet);
+        int numReceived = SDLNet_UDP_Recv(socket, packet);
         if (numReceived > 0) {
             // dump packet data
             std::cout << "Received packet of size " << packet->len << " bytes.\n";
@@ -80,7 +80,7 @@ void SocketListener::Listen(uint16_t portNum) {
                 "\tStatus: " << packet->status << "\n" <<
                 "\tMaxLen: " << packet->maxlen << "\n";
             std::cout << "\n";
-            
+            std::cout << "EN GAP ME PACKETI\n\n";
         } else if (numReceived < 0) {
             std::cerr << "SDLNet_UDP_Recv error: " << SDLNet_GetError() << std::endl;
             SocketListener::_running = false;  // Stop the loop on error
@@ -99,7 +99,7 @@ void SocketListener::Listen(uint16_t portNum) {
 
     // cleannup
     SDLNet_FreePacket(packet);
-    SDLNet_UDP_Close(udpSocket);
+    SDLNet_UDP_Close(socket);
 
     std::cout << "Na konc funkcije Listen\n";
 

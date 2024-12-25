@@ -21,7 +21,7 @@ class Server {
     std::map<uint8_t, GameSession*> activeSessions;
 
 public:
-    static int Setup(uint16_t in, uint16_t out);
+    static int Setup(uint16_t i, uint16_t o);
     static int Run();
     static int Cleanup();
 

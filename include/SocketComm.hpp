@@ -7,13 +7,21 @@
 #include <memory>
 #include <thread>
 #include <chrono>
+#include <queue>
+#include <mutex>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
 
+
+//std::queue<UDPpacket> recievedQueue;
+//std::mutex recvq_mutex;
+//
+//std::queue<UDPpacket> sendQueue;
+//std::mutex sendq_mutex;
+
+
 // objects for socket communication (in and out) 
-
-
 
 // -------------------------------------------------//
 //                                                  //
@@ -28,9 +36,9 @@ class SocketListener {
 
 public:
     static bool _running;
-    static int Start(uint16_t);
-    static void Listen(uint16_t);
-    static void Stop();
+    static void Start(uint16_t);
+    static void Listen(UDPsocket) noexcept;
+    static void Stop() noexcept;
 };
 
 
@@ -48,6 +56,6 @@ class SocketSpeaker {
 public:
     static bool _running;
     static int Start(uint16_t);
-    static void Speak(uint16_t);
-    static void Stop();
+    static void Speak(uint16_t) noexcept;
+    static void Stop() noexcept;
 };

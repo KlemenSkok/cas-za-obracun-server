@@ -6,17 +6,29 @@
 
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <stdexcept>
+#include <cstring>
 
-
+/**
+ * @param i port to listen on
+ * @param o port to send from
+ */
 int Server::Setup(uint16_t port_in, uint16_t port_out) {
-    SocketListener::Start(port_in);
-    //SocketSpeaker::Start(port_out);
-
-    if(!SocketListener::_running /*|| !SocketSpeaker::_running*/) {
-        // error opening ports
-        // todo: throw an exception instead of returning sth
-        return -1;
+    try {
+        SocketListener::Start(port_in);
     }
+    catch (std::runtime_error &e) {
+        throw std::runtime_error(std::string("Failed to start listening thread: ") + e.what());
+    }
+
+    try {
+        // todo
+        //SocketSpeaker::Start(port_out);
+    }
+    catch (std::runtime_error &e) {
+        throw std::runtime_error(std::string("Failed to start speaking thread: ") + e.what());
+    }
+
     return 0;
 }
 
