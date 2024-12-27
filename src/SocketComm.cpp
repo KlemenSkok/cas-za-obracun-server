@@ -59,24 +59,9 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
 
     std::cout << "Listening on socket." << "\n";
 
-    // queue za pakete, ki cakajo na push v recievedQueue
-    std::queue<UDPmessage> msgBuffer;
-
     // start after successful initialization
     SocketListener::_running = true;
     while(SocketListener::_running) {
-
-        // empty the buffer if mutex can be locked
-        if(!msgBuffer.empty()) {
-            if(recvq_mutex.try_lock()) {
-                while(!msgBuffer.empty()) {
-                    std::cout << "Pusham!\n";
-                    recievedQueue.push(msgBuffer.front());
-                    msgBuffer.pop();
-                }
-                recvq_mutex.unlock(); // !
-            }
-        }
         
         // check for new packets
         int numReceived = SDLNet_UDP_Recv(socket, packet);
@@ -95,22 +80,18 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
             }
             std::cout << formatIP(msg.ip->host) << '\n';
             std::cout << msg.data << '\n';
-            
-            if(recvq_mutex.try_lock()) {
-                std::cout << "Pusham!\n";
+
+            // add the packet to queue
+            {
+                std::lock_guard<std::mutex> lock(recvq_mutex); // ta mutex blocka, ampak ni treba bufferja
                 recievedQueue.push(msg);
-                recvq_mutex.unlock(); // ! treba unlockat manually
-            }
-            else { // dodaj v buffer, da lock ne blocka
-                msgBuffer.push(msg);
+                std::cout << "Pusham!\n";
             }
         }
         else if (numReceived < 0) {
             std::cerr << "SDLNet_UDP_Recv error: " << SDLNet_GetError() << std::endl;
-            continue;
+            continue; // skip this loop
         }
-
-
 
         // TODO: packet handling (send to a queue with mutex)
         // TODO: implement logging system (spdlog)
