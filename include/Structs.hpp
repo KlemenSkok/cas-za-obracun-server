@@ -14,6 +14,10 @@ struct UDPmessage {
     int len;
     IPaddress *ip;
 
+    UDPmessage() {
+        data = nullptr;
+        ip = nullptr;
+    }
     ~UDPmessage() {
         delete[] data;
         delete ip;
