@@ -9,16 +9,21 @@
 #include <chrono>
 #include <queue>
 #include <mutex>
+#include <cstring>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
 
+// za UDPmessage
+#include "Structs.hpp"
+#include "Utility.hpp"
 
-//std::queue<UDPpacket> recievedQueue;
-//std::mutex recvq_mutex;
-//
-//std::queue<UDPpacket> sendQueue;
-//std::mutex sendq_mutex;
+
+extern std::queue<UDPmessage> recievedQueue;
+extern std::mutex recvq_mutex;
+
+//extern std::queue<UDPmessage> sendQueue;
+//extern std::mutex sendq_mutex;
 
 
 // objects for socket communication (in and out) 
@@ -32,7 +37,7 @@
 class SocketListener {
 
     // pointer to the listener thread
-    static std::unique_ptr<std::thread> workThread;
+    static std::unique_ptr<std::thread> worker;
 
 public:
     static bool _running;
@@ -51,7 +56,7 @@ public:
 class SocketSpeaker {
 
     // pointer to the speaker thread
-    static std::unique_ptr<std::thread> workThread;
+    static std::unique_ptr<std::thread> worker;
 
 public:
     static bool _running;

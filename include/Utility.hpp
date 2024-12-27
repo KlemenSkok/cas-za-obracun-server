@@ -24,3 +24,8 @@ namespace SDLUtils {
     bool initialize();
     void cleanup();
 }
+
+
+
+std::string formatIP(Uint32 ip);
+void dumpPacket(UDPpacket *packet);
