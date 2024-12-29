@@ -1,13 +1,12 @@
 
 // SocketListener.cpp
 
-#include <iostream>
 #include "../include/SocketComm.hpp"
 
 #define MAX_PACKET_SIZE 512
 
 
-std::queue<UDPmessage> recievedQueue;
+std::queue<std::unique_ptr<UDPmessage>> recievedQueue;
 std::mutex recvq_mutex;
 
 
@@ -18,7 +17,6 @@ std::mutex recvq_mutex;
 // -------------------------------------------------//
 bool SocketListener::_running = false;
 std::unique_ptr<std::thread> SocketListener::worker = nullptr;
-
 
 
 // open socket and start thread
@@ -67,34 +65,19 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
         int numReceived = SDLNet_UDP_Recv(socket, packet);
         if (numReceived > 0) {
             // copy the packet contents
-            UDPmessage msg;
-            msg.len = packet->len; // msg length
-            msg.data = new Uint8[msg.len]; // msg
-            std::memcpy(msg.data, packet->data, msg.len);
-            msg.channel = packet->channel; // channel
-            if(msg.channel != -1) { // address
-                msg.ip = nullptr;
-            }
-            else {
-                msg.ip = new IPaddress(packet->address);
-            }
-            std::cout << formatIP(msg.ip->host) << '\n';
-            std::cout << msg.data << '\n';
+            auto msg = std::make_unique<UDPmessage>(packet);
 
             // add the packet to queue
             {
                 std::lock_guard<std::mutex> lock(recvq_mutex); // ta mutex blocka, ampak ni treba bufferja
-                recievedQueue.push(msg);
-                std::cout << "Pusham!\n";
+                recievedQueue.push(std::move(msg));
+                //std::cout << "Prejel sem paket!\n";
             }
         }
         else if (numReceived < 0) {
             std::cerr << "SDLNet_UDP_Recv error: " << SDLNet_GetError() << std::endl;
             continue; // skip this loop
         }
-
-        // TODO: packet handling (send to a queue with mutex)
-        // TODO: implement logging system (spdlog)
 
         // sleep to reduce CPU usage (1ms)
         std::this_thread::sleep_for(std::chrono::microseconds(10));

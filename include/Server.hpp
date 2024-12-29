@@ -4,26 +4,26 @@
 #pragma once
 
 #include <cstdint>
-//#include <SDL2/SDL_net.h>
+#include <SDL2/SDL.h>
+#include <iostream>
+#include <stdexcept>
+#include <cstring>
 
 #include "GameSession.hpp"
-//#include "SocketListener.hpp"
-
-#define MAX_SESSIONS 255
-#define PORT_IN 42068 // port for incoming traffic
-#define PORT_OUT 42069 // port for outgoung traffic
+#include "SocketComm.hpp"
+#include "Structs.hpp"
 
 
-// TODO: namespace to initialize SDL!!!!
+#define MAX_SESSIONS 256
 
 
 class Server {
     std::map<uint8_t, GameSession*> activeSessions;
 
 public:
-    static int Setup(uint16_t i, uint16_t o);
-    static int Run();
-    static int Cleanup();
+    static void Setup(uint16_t i, uint16_t o);
+    static void Run();
+    static void Cleanup();
 
 private:
 };

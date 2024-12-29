@@ -10,8 +10,9 @@
 #include <queue>
 #include <mutex>
 #include <cstring>
+#include <iostream>
+#include <utility>
 
-#include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
 
 // za UDPmessage
@@ -19,10 +20,10 @@
 #include "Utility.hpp"
 
 
-extern std::queue<UDPmessage> recievedQueue;
+extern std::queue<std::unique_ptr<UDPmessage>> recievedQueue;
 extern std::mutex recvq_mutex;
 
-//extern std::queue<UDPmessage> sendQueue;
+//extern std::queue<std::unique_ptr<UDPmessage>> sendQueue;
 //extern std::mutex sendq_mutex;
 
 

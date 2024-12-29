@@ -3,6 +3,10 @@
 
 #include "include/Server.hpp"
 #include <iostream>
+#include <spdlog/spdlog.h>
+
+#define PORT_IN 42068 // port for incoming traffic
+#define PORT_OUT 42069 // port for outgoung traffic
 
 
 int main(int argc, char *argv[]) {
@@ -15,7 +19,7 @@ int main(int argc, char *argv[]) {
         Server::Setup(42069, 42068);
     }
     catch(std::runtime_error &e) {
-        std::cout << e.what() << '\n';
+        spdlog::error(e.what());
         SDLUtils::cleanup();
 
         return 1;
