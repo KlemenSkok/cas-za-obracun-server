@@ -10,8 +10,8 @@
 #include <queue>
 #include <mutex>
 #include <cstring>
-#include <iostream>
 #include <utility>
+#include <spdlog/spdlog.h>
 
 #include <SDL2/SDL_net.h>
 

@@ -2,18 +2,19 @@
 // Utility.cpp
 
 #include "../include/Utility.hpp"
+#include <iostream>
 
 namespace SDLUtils {
     bool initialize() {
         // init SDL
         if(SDL_Init(SDL_INIT_EVENTS) != 0) {
-            std::cerr << "SDL_Init Error: " << SDL_GetError() << "\n";
+            spdlog::error(std::string("SDL_Init Error: ") + SDL_GetError());
             return false;    
         }
 
         // init SDL_net
         if(SDLNet_Init() != 0) {
-            std::cerr << "SDLNet_Init Error: " << SDLNet_GetError() << "\n";
+            spdlog::error(std::string("SDLNet_Init Error: ") + SDLNet_GetError());
             return false;
         }
 

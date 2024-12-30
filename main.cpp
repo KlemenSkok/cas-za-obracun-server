@@ -2,7 +2,6 @@
 // main.cpp
 
 #include "include/Server.hpp"
-#include <iostream>
 #include <spdlog/spdlog.h>
 
 #define PORT_IN 42068 // port for incoming traffic

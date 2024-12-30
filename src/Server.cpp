@@ -3,6 +3,8 @@
 
 #include "../include/Server.hpp"
 
+#include <iostream>
+
 
 /**
  * @param i port to listen on

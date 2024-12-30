@@ -33,16 +33,12 @@ void SocketListener::Start(uint16_t portNum) {
 
 // stop and close thread
 void SocketListener::Stop() noexcept {
-    std::cout << "Closing listener thread (function Stop())..."  << std::chrono::duration_cast<std::chrono::nanoseconds>(
-                   std::chrono::system_clock::now().time_since_epoch()).count() << '\n';
     SocketListener::_running = false;
 
     if(SocketListener::worker && SocketListener::worker->joinable()) {
-        std::cout << "Joining the thread... (function Stop())..."  << std::chrono::duration_cast<std::chrono::nanoseconds>(
-                   std::chrono::system_clock::now().time_since_epoch()).count() << '\n';
         SocketListener::worker->join();
     }
-    std::cout << "Socket listener closed!\n";
+    spdlog::info("Socket listener close.");
 }
 
 void SocketListener::Listen(UDPsocket socket) noexcept {
@@ -50,12 +46,12 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
     // allocate a packet
     UDPpacket* packet = SDLNet_AllocPacket(MAX_PACKET_SIZE);
     if (!packet) {
-        std::cerr << "Failed to allocate packet: " << SDLNet_GetError() << std::endl;
+        spdlog::error(std::string("Failed to allocate packet: ") + SDLNet_GetError());
         SocketListener::_running = false;
         return;
     }
 
-    std::cout << "Listening on socket." << "\n";
+    spdlog::info("Listening on socket.");
 
     // start after successful initialization
     SocketListener::_running = true;
@@ -75,7 +71,7 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
             }
         }
         else if (numReceived < 0) {
-            std::cerr << "SDLNet_UDP_Recv error: " << SDLNet_GetError() << std::endl;
+            spdlog::error(std::string("SDLNet_UDP_Recv error: ") + SDLNet_GetError());
             continue; // skip this loop
         }
 
@@ -84,15 +80,9 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
 
     }
 
-    std::cout << "Exiting Listen loop... "  << std::chrono::duration_cast<std::chrono::nanoseconds>(
-                   std::chrono::system_clock::now().time_since_epoch()).count() << '\n';
-
     // cleannup
     SDLNet_FreePacket(packet);
     SDLNet_UDP_Close(socket);
-
-    std::cout << "Na konc funkcije Listen\n";
-
 }
 
 
