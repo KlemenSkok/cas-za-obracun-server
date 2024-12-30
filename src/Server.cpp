@@ -4,6 +4,9 @@
 #include "../include/Server.hpp"
 
 #include <iostream>
+#include <stdexcept>
+#include "../include/Utility.hpp"
+
 
 
 /**

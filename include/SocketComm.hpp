@@ -6,18 +6,12 @@
 #include <cstdint>
 #include <memory>
 #include <thread>
-#include <chrono>
 #include <queue>
 #include <mutex>
-#include <cstring>
-#include <utility>
-#include <spdlog/spdlog.h>
-
 #include <SDL2/SDL_net.h>
 
 // za UDPmessage
 #include "Structs.hpp"
-#include "Utility.hpp"
 
 
 extern std::queue<std::unique_ptr<UDPmessage>> recievedQueue;

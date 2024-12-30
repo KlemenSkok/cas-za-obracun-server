@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <stdexcept>
-
 #include "GameSession.hpp"
 #include "SocketComm.hpp"
 #include "Structs.hpp"

@@ -2,7 +2,7 @@
 // main.cpp
 
 #include "include/Server.hpp"
-#include <spdlog/spdlog.h>
+#include "include/Logging/Logger.hpp"
 
 #define PORT_IN 42068 // port for incoming traffic
 #define PORT_OUT 42069 // port for outgoung traffic
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
         Server::Setup(42069, 42068);
     }
     catch(std::runtime_error &e) {
-        spdlog::error(e.what());
+        Logger::error(e.what());
         SDLUtils::cleanup();
 
         return 1;

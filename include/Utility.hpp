@@ -5,7 +5,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_net.h>
-#include <spdlog/spdlog.h>
+#include <iostream>
 
 
 // ID generator for all server objects

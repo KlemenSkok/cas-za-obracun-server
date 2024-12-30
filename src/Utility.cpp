@@ -2,19 +2,20 @@
 // Utility.cpp
 
 #include "../include/Utility.hpp"
+#include "../include/Logging/Logger.hpp"
 #include <iostream>
 
 namespace SDLUtils {
     bool initialize() {
         // init SDL
         if(SDL_Init(SDL_INIT_EVENTS) != 0) {
-            spdlog::error(std::string("SDL_Init Error: ") + SDL_GetError());
+            Logger::error((std::string("SDL_Init Error: ") + SDL_GetError()).c_str());
             return false;    
         }
 
         // init SDL_net
         if(SDLNet_Init() != 0) {
-            spdlog::error(std::string("SDLNet_Init Error: ") + SDLNet_GetError());
+            Logger::error((std::string("SDLNet_Init Error: ") + SDLNet_GetError()).c_str());
             return false;
         }
 

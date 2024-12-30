@@ -6,6 +6,7 @@
 #include <SDL2/SDL_net.h>
 #include <memory>
 #include <utility>
+#include <cstring>
 
 // tukaj so definirane strukture za celoten server
 

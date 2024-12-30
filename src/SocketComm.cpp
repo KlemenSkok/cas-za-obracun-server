@@ -2,6 +2,13 @@
 // SocketListener.cpp
 
 #include "../include/SocketComm.hpp"
+#include "../include/Utility.hpp"
+#include "../include/Logging/Logger.hpp"
+
+#include <cstring>
+#include <utility>
+#include <chrono>
+
 
 #define MAX_PACKET_SIZE 512
 
@@ -38,7 +45,7 @@ void SocketListener::Stop() noexcept {
     if(SocketListener::worker && SocketListener::worker->joinable()) {
         SocketListener::worker->join();
     }
-    spdlog::info("Socket listener close.");
+    Logger::info("Socket listener close.");
 }
 
 void SocketListener::Listen(UDPsocket socket) noexcept {
@@ -46,12 +53,12 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
     // allocate a packet
     UDPpacket* packet = SDLNet_AllocPacket(MAX_PACKET_SIZE);
     if (!packet) {
-        spdlog::error(std::string("Failed to allocate packet: ") + SDLNet_GetError());
+        Logger::error((std::string("Failed to allocate packet: ") + SDLNet_GetError()).c_str());
         SocketListener::_running = false;
         return;
     }
 
-    spdlog::info("Listening on socket.");
+    Logger::info("Listening on socket.");
 
     // start after successful initialization
     SocketListener::_running = true;
@@ -71,7 +78,7 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
             }
         }
         else if (numReceived < 0) {
-            spdlog::error(std::string("SDLNet_UDP_Recv error: ") + SDLNet_GetError());
+            Logger::error((std::string("SDLNet_UDP_Recv error: ") + SDLNet_GetError()).c_str());
             continue; // skip this loop
         }
 
