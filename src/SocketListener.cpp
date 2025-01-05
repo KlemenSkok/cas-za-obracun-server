@@ -1,7 +1,7 @@
 
 // SocketListener.cpp
 
-#include "../include/SocketComm.hpp"
+#include "../include/Communication/SocketListener.hpp"
 #include "../include/Utility.hpp"
 #include "../include/Logging/Logger.hpp"
 
@@ -9,12 +9,32 @@
 #include <utility>
 #include <chrono>
 
-
 #define MAX_PACKET_SIZE 512
 
 
+// -------------------------------------------------//
+//                                                  //
+//                  RECIEVED QUEUE                  //
+//                                                  //
+// -------------------------------------------------//
+
 std::queue<std::unique_ptr<UDPmessage>> recievedQueue;
 std::mutex recvq_mutex;
+
+
+bool getMessageFromQueue(PacketData& data) {
+    data.clear();
+    if(!recievedQueue.empty()) {
+        std::lock_guard<std::mutex> lock(recvq_mutex);
+
+        std::unique_ptr<UDPmessage> msg = std::move(recievedQueue.front());
+        recievedQueue.pop();
+        data = PacketData(msg->data.get(), msg->len);
+
+        return true;
+    }
+    return false;
+}
 
 
 // -------------------------------------------------//
@@ -22,15 +42,17 @@ std::mutex recvq_mutex;
 //                  SOCKET LISTENER                 //
 //                                                  //
 // -------------------------------------------------//
-bool SocketListener::_running = false;
+
+std::atomic<bool> SocketListener::_running = false;
+std::atomic<bool> SocketListener::_shutdown = false;
 std::unique_ptr<std::thread> SocketListener::worker = nullptr;
 
 
 // open socket and start thread
-void SocketListener::Start(uint16_t portNum) {
+void SocketListener::Start(uint16_t port) {
 
-    // open the passed port
-    UDPsocket socket = SDLNet_UDP_Open(portNum);
+    // open the passed port (0 for dynamic port assignment)
+    UDPsocket socket = SDLNet_UDP_Open(port);
     if (!socket) {
         throw std::runtime_error(SDLNet_GetError());
     }
@@ -41,13 +63,18 @@ void SocketListener::Start(uint16_t portNum) {
 // stop and close thread
 void SocketListener::Stop() noexcept {
     SocketListener::_running = false;
+    SocketListener::_shutdown = true;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     if(SocketListener::worker && SocketListener::worker->joinable()) {
+        Logger::info("Waiting for socket listener to close...");
         SocketListener::worker->join();
     }
-    Logger::info("Socket listener close.");
+    Logger::info("Socket listener closed.");
 }
 
+// listen for new packets
 void SocketListener::Listen(UDPsocket socket) noexcept {
 
     // allocate a packet
@@ -58,11 +85,11 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
         return;
     }
 
-    Logger::info("Listening on socket.");
+    Logger::info("Socket listener running.");
 
     // start after successful initialization
     SocketListener::_running = true;
-    while(SocketListener::_running) {
+    while(SocketListener::_running && !SocketListener::_shutdown) {
         
         // check for new packets
         int numReceived = SDLNet_UDP_Recv(socket, packet);
@@ -74,7 +101,7 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
             {
                 std::lock_guard<std::mutex> lock(recvq_mutex); // ta mutex blocka, ampak ni treba bufferja
                 recievedQueue.push(std::move(msg));
-                //std::cout << "Prejel sem paket!\n";
+                //std::cout << " [SocketListener] Prejel sem paket: " << recievedQueue.back()->data.get() << '\n';
             }
         }
         else if (numReceived < 0) {
@@ -82,23 +109,15 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
             continue; // skip this loop
         }
 
-        // sleep to reduce CPU usage (1ms)
-        std::this_thread::sleep_for(std::chrono::microseconds(10));
+        if(!SocketListener::_running) {
+            break;
+        }
 
+        // sleep to reduce CPU usage (1ms)
+        std::this_thread::sleep_for(std::chrono::microseconds(LOOP_DELAY));
     }
 
     // cleannup
     SDLNet_FreePacket(packet);
     SDLNet_UDP_Close(socket);
 }
-
-
-// -------------------------------------------------//
-//                                                  //
-//                  SOCKET SPEAKER                  //
-//                                                  //
-// -------------------------------------------------//
-
-bool SocketSpeaker::_running = false;
-
-std::unique_ptr<std::thread> SocketSpeaker::worker = nullptr;

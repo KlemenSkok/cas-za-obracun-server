@@ -4,8 +4,9 @@
 #pragma once
 
 #include "GameSession.hpp"
-#include "SocketComm.hpp"
-#include "Structs.hpp"
+#include "Communication/SocketListener.hpp"
+#include "Communication/SocketSpeaker.hpp"
+#include "Containers.hpp"
 
 
 #define MAX_SESSIONS 256
@@ -18,6 +19,6 @@ public:
     static void Setup(uint16_t i, uint16_t o);
     static void Run();
     static void Cleanup();
-
-private:
+    
+    static void processNewPackets();
 };

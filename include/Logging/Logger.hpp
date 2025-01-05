@@ -6,7 +6,10 @@
 #ifdef SPDLOG
 #define SPDLOG_HEADER_ONLY
 #include <spdlog/spdlog.h>
+#else
+#include <iostream>
 #endif
+
 
 class Logger {
 public:
