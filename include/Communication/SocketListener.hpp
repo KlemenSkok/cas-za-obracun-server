@@ -46,8 +46,9 @@ class SocketListener {
     static std::unique_ptr<std::thread> worker;
 
 public:
-    static std::atomic<bool> _shutdown;
+    static std::atomic<bool> _shutdown; // atomic za thread safety
     static std::atomic<bool> _running;
+
     static void Start(uint16_t port);
     static void Listen(UDPsocket) noexcept;
     static void Stop() noexcept;

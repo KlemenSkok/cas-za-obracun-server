@@ -4,8 +4,8 @@
 #include "include/Server.hpp"
 #include "include/Logging/Logger.hpp"
 
-#define PORT_IN 42068 // port for incoming traffic
-#define PORT_OUT 42069 // port for outgoung traffic
+#define PORT_IN 42068 // port for outgoung traffic (speak)
+#define PORT_OUT 42069 // port for incoming traffic (listen)
 
 
 int main(int argc, char *argv[]) {
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     }
 
     try {
-        Server::Setup(42069, 42068);
+        Server::Setup(PORT_IN, PORT_OUT);
     }
     catch(std::runtime_error &e) {
         Logger::error(e.what());
@@ -23,7 +23,6 @@ int main(int argc, char *argv[]) {
 
         return 1;
     }
-
 
     Server::Run();
     Server::Cleanup();

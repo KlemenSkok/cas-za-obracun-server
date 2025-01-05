@@ -37,8 +37,10 @@ void Server::Run() {
         
         processNewPackets();
 
+        // ostale funkcionalnosti
 
 
+        // --------------------------------------
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));         
     }
@@ -66,7 +68,7 @@ void Server::processNewPackets() {
         // handle the message
         // --------------------------------------
 
-        std::cout << "[" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() << "] " << recv_msg.getRawData().get() << '\n';
+        std::cout << "[" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() << "] -> " << recv_msg.getRawData().get() << '\n';
 
         // --------------------------------------
 

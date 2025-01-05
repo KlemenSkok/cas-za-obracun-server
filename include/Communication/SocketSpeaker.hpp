@@ -46,7 +46,7 @@ class SocketSpeaker {
     static UDPsocket socket;
 
 public:
-    static std::atomic<bool> _shutdown;
+    static std::atomic<bool> _shutdown; // atomic za thread safety
     static std::atomic<bool> _running;
     
     static void Start(uint16_t port);

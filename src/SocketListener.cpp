@@ -102,6 +102,7 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
                 std::lock_guard<std::mutex> lock(recvq_mutex); // ta mutex blocka, ampak ni treba bufferja
                 recievedQueue.push(std::move(msg));
                 //std::cout << " [SocketListener] Prejel sem paket: " << recievedQueue.back()->data.get() << '\n';
+                std::cout << "Prejeto: [" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() << "]\n";
             }
         }
         else if (numReceived < 0) {
