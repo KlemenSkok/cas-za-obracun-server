@@ -35,6 +35,22 @@ void addMessageToQueue(PacketData& data, int channel) {
     }
 }
 
+void addMessageToQueue(std::unique_ptr<UDPmessage> msg) {
+    {
+        std::lock_guard<std::mutex> lock(sendq_mutex);
+        sendQueue.push(std::move(msg));
+    }
+}
+
+void addMessagesToQueue(std::vector<std::unique_ptr<UDPmessage>> data) {
+    {
+        std::lock_guard<std::mutex> lock(sendq_mutex);
+        for(auto& msg : data) {
+            sendQueue.push(std::move(msg));
+        }
+    }
+}
+
 
 // -------------------------------------------------//
 //                                                  //

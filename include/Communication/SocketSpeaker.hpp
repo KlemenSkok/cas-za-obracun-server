@@ -29,6 +29,9 @@ extern std::mutex sendq_mutex;
 
 // function that add a message to the send queue
 void addMessageToQueue(PacketData& data, int channel);
+void addMessageToQueue(std::unique_ptr<UDPmessage> msg);
+// function that adds a vector of messages to the send queue
+void addMessagesToQueue(std::vector<std::unique_ptr<UDPmessage>> data);
 
 
 // -------------------------------------------------//
