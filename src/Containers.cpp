@@ -43,6 +43,8 @@ void PacketData::reset() {
 }
 
 Uint8& PacketData::flags() {
+    if(data.size() < 0)
+        data.push_back(0);
     return data[0];
 }
 

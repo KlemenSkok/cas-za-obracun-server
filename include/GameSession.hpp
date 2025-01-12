@@ -3,24 +3,30 @@
 
 #pragma once
 
-#include <cstdint> // za uint8_t
+#include <cstdint> // za playerid
 #include <map>
+#include <memory>
 
-#include "Base.hpp"
 #include "Client.hpp"
 
 #define MAX_PLAYERS 4 // per session
 
 
-class GameSession : public BaseServerObject {
+class GameSession {
 private:
-    std::map<uint8_t, Client*> clients;
+    std::map<uint16_t, std::unique_ptr<Client>> clients;
+    uint8_t id;
 
 public: 
-    GameSession();
-    ~GameSession();
+    GameSession(int id) : id(id) {}
+    ~GameSession() = default;
+
+    uint8_t get_id();
 
     bool isFull();
-    int addClient();
+    bool acceptsPlayers();
+    void addClient(uint16_t id);
+
+
 
 };

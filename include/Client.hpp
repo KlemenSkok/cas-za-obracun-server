@@ -3,11 +3,18 @@
 
 #pragma once
 
-#include "Base.hpp"
+#include "../include/Utility.hpp"
 
-class Client : public BaseServerObject {
+#include <set>
+#include <cstdint>
+
+class Client {
 private:
-    
+    int channel; // == playerid
+
+
 public:
+    Client(int ch) : channel(ch) {}
+
 
 };

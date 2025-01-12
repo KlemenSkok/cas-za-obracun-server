@@ -9,12 +9,10 @@
 
 
 // ID generator for all server objects
-class IDGenerator {
+class IDgenerator {
 public:
-    static int GetNextID() {
-        static int current_id = 1;
-        return current_id++;
-    }
+    static int addPlayer();
+    static int addGame();
 };
 
 

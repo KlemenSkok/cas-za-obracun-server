@@ -3,7 +3,7 @@
 
 #include "../include/Utility.hpp"
 #include "../include/Logging/Logger.hpp"
-#include <iostream>
+#include <set>
 
 namespace SDLUtils {
     bool initialize() {
@@ -47,3 +47,4 @@ void dumpPacket(UDPpacket *packet) {
         "\tMaxLen: " << packet->maxlen << "\n";
     std::cout << "\n";
 }
+

@@ -4,8 +4,8 @@
 #include "include/Server.hpp"
 #include "include/Logging/Logger.hpp"
 
-#define PORT_IN 42068 // port for outgoung traffic (speak)
-#define PORT_OUT 42069 // port for incoming traffic (listen)
+#define PORT_OUT 42068 // port for outgoing traffic (speak)
+#define PORT_IN 42069 // port for incoming traffic (listen)
 
 
 int main(int argc, char *argv[]) {

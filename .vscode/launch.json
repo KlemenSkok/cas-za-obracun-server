@@ -1,0 +1,62 @@
+/*{
+    "name": "C++ Launch",
+    "type": "cppdbg",
+    "request": "launch",
+    "program": "${workspaceFolder}/bin/game-server",
+    "stopAtEntry": false,
+    "customLaunchSetupCommands": [
+      { "text": "target-run", "description": "run target", "ignoreFailures": false }
+    ],
+    "launchCompleteCommand": "exec-run",
+    "linux": {
+      "MIMode": "gdb",
+      "miDebuggerPath": "/usr/bin/gdb"
+    },
+    "osx": {
+      "MIMode": "lldb"
+    },
+    "windows": {
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:\\MinGw\\bin\\gdb.exe"
+    }
+  }
+  */
+
+  {
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Server",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/game-server",  // Path to the executable on the remote host
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            //"MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",  // gdb path on the remote host
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "cppbuild"//,
+            //"pipeTransport": {
+                //    "pipeCwd": "${workspaceFolder}",
+            //    "pipeProgram": "ssh",
+            //    "pipeArgs": [
+            //        "admin@192.168.64.69"  // SSH user and host
+            //    ],
+            //    "debuggerPath": "/usr/bin/gdb"  // gdb path on the remote machine
+            //},
+            //"sourceFileMap": {
+            //    "/home/admin/game-server": "/home/admin/game-server"  // Map remote to local paths
+            //}
+        }
+
+    ]
+}

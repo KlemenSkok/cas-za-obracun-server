@@ -1,5 +1,4 @@
 
-
 // SocketSpeaker.hpp
 
 #pragma once
@@ -29,7 +28,7 @@ extern std::queue<std::unique_ptr<UDPmessage>> recievedQueue;
 extern std::mutex recvq_mutex;
 
 // function that retrieves a message from the recieved queue
-bool getMessageFromQueue(PacketData& data);
+bool getMessageFromQueue(std::unique_ptr<UDPmessage>& data);
 
 
 // -------------------------------------------------//

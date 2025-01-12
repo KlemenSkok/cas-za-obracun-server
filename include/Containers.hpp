@@ -65,6 +65,9 @@ struct UDPmessage {
 class PacketData {
     std::vector<Uint8> data;
 
+    // zaradi novih clientov
+    IPaddress ip;
+
 public:
     PacketData() = default; // prazen paket
     PacketData(const PacketData&) = default; // kopirni konstruktor

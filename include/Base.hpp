@@ -8,7 +8,7 @@
 
 // base object for server
 // inherited by server, game sessions, clients...
-class BaseServerObject {
+/*class BaseServerObject {
 protected:
     int _id; // object id
 
@@ -18,7 +18,7 @@ public:
     
     virtual void Init() = 0;
     virtual void Despose() = 0;
-};
+};*/
 
 
 // base game object

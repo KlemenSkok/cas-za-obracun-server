@@ -22,14 +22,12 @@ std::queue<std::unique_ptr<UDPmessage>> recievedQueue;
 std::mutex recvq_mutex;
 
 
-bool getMessageFromQueue(PacketData& data) {
-    data.clear();
+bool getMessageFromQueue(std::unique_ptr<UDPmessage>& data) {
     if(!recievedQueue.empty()) {
         std::lock_guard<std::mutex> lock(recvq_mutex);
 
-        std::unique_ptr<UDPmessage> msg = std::move(recievedQueue.front());
+        data = std::move(recievedQueue.front());
         recievedQueue.pop();
-        data = PacketData(msg->data.get(), msg->len);
 
         return true;
     }
@@ -102,7 +100,7 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
                 std::lock_guard<std::mutex> lock(recvq_mutex); // ta mutex blocka, ampak ni treba bufferja
                 recievedQueue.push(std::move(msg));
                 //std::cout << " [SocketListener] Prejel sem paket: " << recievedQueue.back()->data.get() << '\n';
-                std::cout << "Prejeto: [" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() << "]\n";
+                //std::cout << "Prejeto: [" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() << "]\n";
             }
         }
         else if (numReceived < 0) {
