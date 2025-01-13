@@ -10,11 +10,11 @@
 
 class Client {
 private:
-    int channel; // == playerid
+    uint16_t id; // == UDP channel
 
 
 public:
-    Client(int ch) : channel(ch) {}
-
+    Client(int id) : id(id) {}
+    uint16_t get_id();
 
 };

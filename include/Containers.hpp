@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "Logging/Logger.hpp"
+
 #include <SDL2/SDL_net.h>
 #include <memory>
 #include <utility>
@@ -88,6 +90,34 @@ public:
     Uint8& flags(); // vrne prvi byte (server flags)
     Uint8& operator[](int i); // vrne i-ti byte
     template<typename T>
-    T getByOffset(size_t offset, size_t size, T sample); // vrne podatek tipa T na offsetu
+    void getByOffset(size_t offset, size_t size, T& target); // vrne podatek tipa T na offsetu
 
 };
+
+
+// template funkcije MORAJO bit v isti datoteki kot class definition, ker mora
+// compiler takoj najt definicijo funkcije da lahko nardi potrebne overloade
+// 
+// pazi: ce je treba meta deklaracije posebi, je treba v .cpp file dodat tole:
+// Explicit template instantiations
+// 
+// template void PacketData::getByOffset<unsigned char>(size_t, size_t, unsigned char&);
+// template void PacketData::getByOffset<unsigned short>(size_t, size_t, unsigned short&);
+
+template<typename T>
+void PacketData::getByOffset(size_t offset, size_t size, T& target) {
+    if(offset + size > data.size()) {
+        Logger::warn("Offset out of bounds - PacketData::getByOffset().");
+        return;
+    }
+
+    std::memcpy(&target, &data[offset], size);
+}
+
+template<typename T>
+void PacketData::append(T data) {
+    // resize the vector and append the data
+    size_t current_size = this->data.size();
+    this->data.resize(current_size + sizeof(T)); // resize vector
+    std::memcpy(&this->data[current_size], &data, sizeof(T)); // append data
+}

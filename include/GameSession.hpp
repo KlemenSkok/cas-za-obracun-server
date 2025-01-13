@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "Client.hpp"
+#include "Logging/Logger.hpp"
 
 #define MAX_PLAYERS 4 // per session
 
@@ -25,7 +26,13 @@ public:
 
     bool isFull();
     bool acceptsPlayers();
-    void addClient(uint16_t id);
+    short size(); // == number of clients
+
+    void addClient(uint16_t c_id);
+    void removeClient(uint16_t c_id, UDPsocket);
+    bool hasClient(uint16_t c_id);
+
+    void Stop(UDPsocket);
 
 
 
