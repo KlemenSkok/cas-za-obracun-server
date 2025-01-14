@@ -43,6 +43,7 @@ bool getMessageFromQueue(std::unique_ptr<UDPmessage>& data) {
 
 std::atomic<bool> SocketListener::_running = false;
 std::atomic<bool> SocketListener::_shutdown = false;
+UDPsocket SocketListener::socket = nullptr;
 std::unique_ptr<std::thread> SocketListener::worker = nullptr;
 
 
@@ -54,6 +55,7 @@ void SocketListener::Start(uint16_t port) {
     if (!socket) {
         throw std::runtime_error(SDLNet_GetError());
     }
+    SocketListener::socket = socket;
 
     SocketListener::worker = std::make_unique<std::thread>(&SocketListener::Listen, socket);
 }
@@ -119,4 +121,9 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
     // cleannup
     SDLNet_FreePacket(packet);
     SDLNet_UDP_Close(socket);
+}
+
+
+UDPsocket SocketListener::getSocket() noexcept {
+    return SocketListener::socket;
 }

@@ -20,3 +20,6 @@ $bytes = [System.Text.Encoding]::UTF8.GetBytes($message)
 $udpClient.Send($bytes, $bytes.Length, $serverIp, $port)
 $udpClient.Close()
 ```
+
+Zaenkrat je treba killat task da ga ugasneš:<br>
+> `kill -9 PID`

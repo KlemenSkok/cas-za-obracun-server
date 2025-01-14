@@ -53,6 +53,16 @@ void Server::Setup(uint16_t port_in, uint16_t port_out) {
     }
 }
 
+void Server::Cleanup() {
+    Logger::info("Cleaning up...");
+
+    SocketListener::Stop();
+    SocketSpeaker::Stop();
+
+    SDLNet_UDP_Close(SocketSpeaker::getSocket());
+    SDLNet_UDP_Close(SocketListener::getSocket());
+}
+
 void Server::Run() {
     bool quit = false;
 
@@ -67,14 +77,6 @@ void Server::Run() {
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));         
     }
-}
-
-void Server::Cleanup() {
-    Logger::info("Cleaning up...");
-
-    SocketListener::Stop();
-    SocketSpeaker::Stop();
-
 }
 
 void Server::processNewPackets() {
@@ -93,7 +95,7 @@ void Server::processNewPackets() {
 
         //std::cout << "[" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() << "] -> " << recv_msg->data.get() << '\n';
 
-        // check, if we got a new client
+        // check if we got a new client
         if(recv_msg->channel == -1) {
             PacketData data(recv_msg->data.get(), recv_msg->len);
             
@@ -122,6 +124,17 @@ void Server::processNewPackets() {
                     continue;
                 }
 
+                // send back a confirmation with the client's new id and session id
+                uint8_t session_id = Server::queryClient(client_id);
+
+                PacketData d(true);
+                d.flags() |= (1 << FLAG_ACK);
+                d.flags() |= (1 << FLAG_SYN);
+                
+                d.append(session_id);
+                d.append(client_id);
+                addMessageToQueue(d, client_id);
+
                 // add a client - done
                 // find a free channel and bind the ip to it - done
                 // send back either a confirmation or a denial - done
@@ -147,7 +160,7 @@ void Server::processNewPackets() {
 
                             // poslji nazaj FIN
                             {
-                                // treba dat v svoj scope zaradi inicializacije PacketData d(true); (error: transfer of control bypasses initialization of:)
+                                // treba dat v svoj scope zaradi inicializacije PacketData d(true); (error: transfer of control bypasses initialization of...)
                                 PacketData d(true);
                                 d.flags() |= (1 << FLAG_ACK); // acknowledge the FIN
                                 d.flags() |= (1 << FLAG_FIN); // send FIN back
@@ -174,8 +187,6 @@ void Server::processNewPackets() {
                     }
                 }
             }
-            
-
         }
 
 

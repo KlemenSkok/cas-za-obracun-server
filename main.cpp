@@ -20,12 +20,15 @@ int main(int argc, char *argv[]) {
     catch(std::runtime_error &e) {
         Logger::error(e.what());
         SDLUtils::cleanup();
+        Server::Cleanup();
 
         return 1;
     }
 
     Server::Run();
+    
     Server::Cleanup();
+    SDLUtils::cleanup();
 
 
     return 0;
