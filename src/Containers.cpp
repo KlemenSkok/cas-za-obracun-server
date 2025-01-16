@@ -4,6 +4,8 @@
 #include "../include/Containers.hpp"
 #include "../include/Logging/Logger.hpp"
 
+#include <sstream>
+
 // -------------------------------------------------//
 //                                                  //
 //                  UDP MESSAGE                     //
@@ -54,6 +56,21 @@ Uint8& PacketData::operator[](int i) {
 
 void PacketData::append(const Uint8* data, int len) {
     this->data.insert(this->data.end(), data, data + len);
+}
+
+std::string PacketData::dump() {
+    std::ostringstream oss;
+    oss << "[";
+
+    for (size_t i = 0; i < data.size(); ++i) {
+        oss << static_cast<int>(data.data()[i]); // Cast to int for proper representation
+        if (i < data.size() - 1) {
+            oss << ", ";
+        }
+    }
+
+    oss << "]";
+    return oss.str();
 }
 
 

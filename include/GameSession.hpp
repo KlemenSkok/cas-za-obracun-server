@@ -28,9 +28,10 @@ public:
     bool acceptsPlayers();
     short size(); // == number of clients
 
-    void addClient(uint16_t c_id);
+    void addClient(uint16_t c_id, IPaddress ip);
     void removeClient(uint16_t c_id, UDPsocket);
     bool hasClient(uint16_t c_id);
+    int queryAddress(IPaddress ip);
 
     void Stop(UDPsocket);
 

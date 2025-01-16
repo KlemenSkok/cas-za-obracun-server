@@ -80,6 +80,7 @@ public:
     size_t size() const; // vrne dolzino podatkov
     void clear(); // izbrise vse podatke
     void reset();
+    std::string dump();
     
     // adding data
     template<typename T>
@@ -107,13 +108,15 @@ public:
 template<typename T>
 void PacketData::getByOffset(size_t offset, size_t size, T& target) {
     if(offset + size > data.size()) {
-        Logger::warn("Offset out of bounds - PacketData::getByOffset().");
+        //Logger::warn("Offset out of bounds - PacketData::getByOffset().");
         return;
     }
 
     std::memcpy(&target, &data[offset], size);
 }
 
+
+// ta funkcija kontra zapise bajte. todo: fix
 template<typename T>
 void PacketData::append(T data) {
     // resize the vector and append the data

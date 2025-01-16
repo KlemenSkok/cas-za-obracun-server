@@ -100,10 +100,16 @@ void Server::processNewPackets() {
             PacketData data(recv_msg->data.get(), recv_msg->len);
             
             if(data.flags() == (1 << FLAG_SYN)) { // 00100000, za debug das FIN)+1, da vpises 'A'
+                int tmp = Server::queryAddress(*recv_msg->ip.get());
+                if(tmp != -1) {
+                    // duplicated connection request detected, skip
+                    //std::cout << "Ta client je ze povezan. njegov id je " << tmp << '\n';
+                    continue;
+                }
+                
                 std::cout << "We got a connection request!\n";
-                
-                int client_id = Server::addClient();
-                
+                int client_id = Server::addClient(*recv_msg->ip.get());
+
                 auto remove_client = [&]() {
                     Server::removeClient(client_id);
                     // send denial to the client
@@ -133,12 +139,15 @@ void Server::processNewPackets() {
                 
                 d.append(session_id);
                 d.append(client_id);
+
+                std::cout << "Vsebina sporocila: " << d.dump() << '\n';
+
                 addMessageToQueue(d, client_id);
 
                 // add a client - done
                 // find a free channel and bind the ip to it - done
                 // send back either a confirmation or a denial - done
-                Logger::info(("A new client was added. client_id=" + std::to_string(client_id)).c_str());
+                std::cout << "A new client [" << client_id << "] was added to session [" << (int)session_id << "].\n";
                 continue;
             }
 
@@ -149,13 +158,17 @@ void Server::processNewPackets() {
                             // look for any awaiting confirmations
                             break;
                         case FLAG_FIN:
+                            if(Server::queryAddress(*recv_msg->ip.get()) == -1) {
+                                // this is a duplicate message; the client had already been removed
+                                break;
+                            }
                             // terminate connection, send FIN back
                             uint8_t target_session;
                             data.getByOffset(OFFSET_SESSION_ID, sizeof(uint8_t), target_session);
                             uint16_t target_client;
                             data.getByOffset(OFFSET_CLIENT_ID, sizeof(uint16_t), target_client);
-                            std::cout << "removing client [" << target_client << "] from [" << target_session << "]...\n";
-                            Server::removeClient(target_client, target_session);
+                            std::cout << "removing client [" << target_client << "] from [" << (int)target_session << "]...\n";
+                            Server::removeClient(recv_msg->channel, target_session);
 
 
                             // poslji nazaj FIN
@@ -164,6 +177,7 @@ void Server::processNewPackets() {
                                 PacketData d(true);
                                 d.flags() |= (1 << FLAG_ACK); // acknowledge the FIN
                                 d.flags() |= (1 << FLAG_FIN); // send FIN back
+                                std::cout << "Vrednost zastavc: " << (int)d.flags() << '\n';
                                 recv_msg->data.reset();
                                 recv_msg->len = d.size();
                                 recv_msg->data = d.getRawData();
@@ -199,7 +213,7 @@ void Server::processNewPackets() {
 }
 
 // clients
-int Server::addClient() {
+int Server::addClient(IPaddress ip) {
     static uint16_t id_counter = 0;
 
     // search for joinable active sessions
@@ -238,7 +252,7 @@ int Server::addClient() {
         }
     }
 
-    _sessions[session_id]->addClient(client_id);
+    _sessions[session_id]->addClient(client_id, ip);
 
     return client_id;
 }
@@ -261,7 +275,7 @@ void Server::removeClient(uint16_t c_id, uint8_t s_id) {
         Logger::warn("Tried to access a non-existent session.");
         return;
     }
-
+    Logger::info("Removing a client.");
     _sessions[s_id]->removeClient(c_id, SocketSpeaker::getSocket());
     if(_sessions[s_id]->size() == 0) {
         // terminate session if empty
@@ -274,6 +288,15 @@ int Server::queryClient(uint16_t c_id) {
         if(s.second->hasClient(c_id)) {
             return s.first;
         }
+    }
+    return -1;
+}
+
+int Server::queryAddress(IPaddress ip) {
+    for(auto &s : _sessions) {
+        int client_id = s.second->queryAddress(ip);
+        if(client_id != -1)
+            return client_id;
     }
     return -1;
 }
