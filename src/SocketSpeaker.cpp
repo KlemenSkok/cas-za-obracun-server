@@ -127,7 +127,7 @@ void SocketSpeaker::Speak(UDPsocket socket) noexcept {
                 packet->address = *msg.get()->ip.get();
             }
 
-            std::cout << "Posiljam na channel [" << packet->channel << "]\n";
+            //std::cout << "Posiljam na channel [" << packet->channel << "]\n";
 
             // alternativa je std::move na shared pointer
             packet->data = msg.get()->data.release();

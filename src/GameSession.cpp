@@ -22,22 +22,16 @@ uint8_t GameSession::get_id() {
 }
 
 void GameSession::addClient(uint16_t id, IPaddress ip) {
-
     clients[id] = std::make_unique<Client>(id, ip);
-
-    // todo
 }
 
-void GameSession::removeClient(uint16_t c_id, UDPsocket socket) {
-    SDLNet_UDP_Unbind(socket, c_id);
-    Logger::info("TUKI!!");
+void GameSession::removeClient(uint16_t c_id) {
     
     if(clients.find(c_id) != clients.end()) {
-        Logger::info("Client je bil najden tuki.\n");
+        Logger::info(("Removed client. ID: " + std::to_string(c_id)).c_str());
     }
     
     clients.erase(c_id);
-    Logger::info(("Removed client. id=" + std::to_string(c_id)).c_str());
 }
 
 bool GameSession::hasClient(uint16_t c_id) {
@@ -59,4 +53,13 @@ int GameSession::queryAddress(IPaddress ip) {
         }
     }
     return -1;
+}
+
+IPaddress GameSession::getClientAddr(uint16_t c_id) {
+    for(auto &c : clients) {
+        if(c.first == c_id) {
+            return c.second->get_ip();
+        }
+    }
+    return IPaddress();
 }

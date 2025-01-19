@@ -92,12 +92,10 @@ void Server::processNewPackets() {
         
         // handle the message
         // --------------------------------------
-
-        //std::cout << "[" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() << "] -> " << recv_msg->data.get() << '\n';
+        PacketData data(recv_msg->data.get(), recv_msg->len);
 
         // check if we got a new client
         if(recv_msg->channel == -1) {
-            PacketData data(recv_msg->data.get(), recv_msg->len);
             
             if(data.flags() == (1 << FLAG_SYN)) { // 00100000, za debug das FIN)+1, da vpises 'A'
                 int tmp = Server::queryAddress(*recv_msg->ip.get());
@@ -107,7 +105,6 @@ void Server::processNewPackets() {
                     continue;
                 }
                 
-                std::cout << "We got a connection request!\n";
                 int client_id = Server::addClient(*recv_msg->ip.get());
 
                 auto remove_client = [&]() {
@@ -124,81 +121,92 @@ void Server::processNewPackets() {
                     Logger::warn("Failed to add a new client.");
                     continue;
                 }
-                if(SDLNet_UDP_Bind(SocketSpeaker::getSocket(), client_id, recv_msg->ip.get()) == -1) {
+                if(SDLNet_UDP_Bind(SocketListener::getSocket(), client_id, recv_msg->ip.get()) == -1) {
                     remove_client();
                     Logger::warn("Failed to add a new client.");
                     continue;
                 }
 
                 // send back a confirmation with the client's new id and session id
-                uint8_t session_id = Server::queryClient(client_id);
+                int session_id = Server::queryClient(client_id);
 
                 PacketData d(true);
                 d.flags() |= (1 << FLAG_ACK);
                 d.flags() |= (1 << FLAG_SYN);
                 
-                d.append(session_id);
-                d.append(client_id);
+                d.append((uint8_t)session_id);
+                d.append((uint16_t)client_id);
+                
+                recv_msg->data.reset();
+                recv_msg->len = d.size();
+                recv_msg->data = d.getRawData();
+                
+                addMessageToQueue(std::move(recv_msg));
 
-                std::cout << "Vsebina sporocila: " << d.dump() << '\n';
+                Logger::info(("New client connected. Client ID: " + std::to_string(client_id) + ", Session ID: " + std::to_string(session_id)).c_str());
 
-                addMessageToQueue(d, client_id);
-
-                // add a client - done
-                // find a free channel and bind the ip to it - done
-                // send back either a confirmation or a denial - done
-                std::cout << "A new client [" << client_id << "] was added to session [" << (int)session_id << "].\n";
                 continue;
             }
+        }
 
-            for(int i = NUM_FLAGS-1; i >= 0; i--) {
-                if(data.flags() & (1 << i)) {
-                    switch(i) {
-                        case FLAG_ACK:
-                            // look for any awaiting confirmations
+        bool finish_packet = false;
+        for(int i = NUM_FLAGS-1; i >= 0; i--) {
+            if(data.flags() & (1 << i)) {
+                switch(i) {
+                    case FLAG_ACK:
+                        // look for any awaiting confirmations
+                        break;
+                    case FLAG_FIN:
+                        if(Server::queryClient(recv_msg->channel) == -1) {
+                            // this is a duplicate message; the client had already been removed
                             break;
-                        case FLAG_FIN:
-                            if(Server::queryAddress(*recv_msg->ip.get()) == -1) {
-                                // this is a duplicate message; the client had already been removed
-                                break;
-                            }
-                            // terminate connection, send FIN back
-                            uint8_t target_session;
-                            data.getByOffset(OFFSET_SESSION_ID, sizeof(uint8_t), target_session);
-                            uint16_t target_client;
-                            data.getByOffset(OFFSET_CLIENT_ID, sizeof(uint16_t), target_client);
-                            std::cout << "removing client [" << target_client << "] from [" << (int)target_session << "]...\n";
-                            Server::removeClient(recv_msg->channel, target_session);
+                        }
 
+                        // terminate connection, send FIN back
+                        uint8_t target_session;
+                        uint16_t target_client;
+                        try {
+                            data.getByOffset(target_session, sizeof(uint8_t), OFFSET_SESSION_ID);
+                            data.getByOffset(target_client, sizeof(uint16_t), OFFSET_CLIENT_ID);
+                        }
+                        catch (std::exception &e) {
+                            Logger::warn("Failed to read packet contents.");
+                        }
+                        Server::removeClient(target_client, target_session);
 
-                            // poslji nazaj FIN
-                            {
-                                // treba dat v svoj scope zaradi inicializacije PacketData d(true); (error: transfer of control bypasses initialization of...)
-                                PacketData d(true);
-                                d.flags() |= (1 << FLAG_ACK); // acknowledge the FIN
-                                d.flags() |= (1 << FLAG_FIN); // send FIN back
-                                std::cout << "Vrednost zastavc: " << (int)d.flags() << '\n';
-                                recv_msg->data.reset();
-                                recv_msg->len = d.size();
-                                recv_msg->data = d.getRawData();
+                        //std::cout << "prejet IP: " << formatIP(recv_msg->ip->host) << ":" << recv_msg->ip->port << '\n';
 
-                                addMessageToQueue(std::move(recv_msg));
-                            }
+                        // poslji nazaj FIN
+                        {
+                            // treba dat v svoj scope zaradi inicializacije PacketData d(true); (error: transfer of control bypasses initialization of...)
+                            PacketData d(true);
+                            d.flags() |= (1 << FLAG_ACK); // acknowledge the FIN
+                            d.flags() |= (1 << FLAG_FIN); // send FIN back
+                            recv_msg->data.reset();
+                            recv_msg->len = d.size();
+                            recv_msg->data = d.getRawData();
+                            recv_msg->channel = -1;
 
-                            break;
-                        case FLAG_KEEPALIVE:
-                            // just update timestamp of the last keepalive message
-                            break;
-                        case FLAG_DATA:
-                            // forward message to game for further processing
-                            break;
-                        case FLAG_PULL:
-                            // send back data about client's game
-                            break;
-                        default:
-                            Logger::info(("A packet was ignored: " + std::string((char*)data.getRawData().get())).c_str());
-                            // ignore the packet
-                    }
+                            addMessageToQueue(std::move(recv_msg));
+                            finish_packet = true;
+                        }
+
+                        break;
+                    case FLAG_KEEPALIVE:
+                        // just update timestamp of the last keepalive message
+                        break;
+                    case FLAG_DATA:
+                        // forward message to game for further processing
+                        break;
+                    case FLAG_PULL:
+                        // send back data about client's game
+                        break;
+                    //default:
+                        //Logger::info(("A packet was ignored: " + std::string((char*)data.getRawData().get())).c_str());
+                        // ignore the packet
+                }
+                if(finish_packet) {
+                    break; // break from loop checking flags
                 }
             }
         }
@@ -214,7 +222,7 @@ void Server::processNewPackets() {
 
 // clients
 int Server::addClient(IPaddress ip) {
-    static uint16_t id_counter = 0;
+    static uint16_t id_counter = 1;
 
     // search for joinable active sessions
     int session_id = -1;
@@ -223,7 +231,6 @@ int Server::addClient(IPaddress ip) {
             session_id = s.first;
         }
     }
-    std::cout << "Number of active sessions: " << _sessions.size() << '\n';
 
     if(session_id == -1) {
         // all sessions are unjoinable, start a new one
@@ -233,7 +240,7 @@ int Server::addClient(IPaddress ip) {
             Logger::warn("Failed to start a new game session");
             return -1; // no place for new sessions
         }
-        Logger::info(("Created a new game session. session_id=" + std::to_string(session_id)).c_str());
+        //Logger::info(("Created a new game session. ID: " + std::to_string(session_id)).c_str());
     }
 
     // generate a new client id
@@ -260,14 +267,18 @@ int Server::addClient(IPaddress ip) {
 void Server::removeClient(uint16_t c_id) {
     int session_id = Server::queryClient(c_id);
 
-    if(session_id != -1) {
-        _sessions[session_id]->removeClient(c_id, SocketSpeaker::getSocket());
-        if(_sessions[session_id]->size() == 0) {
-            // terminate session if empty
-            _sessions.erase(session_id);
-        }
+    if(session_id == -1) {
+        Logger::warn("Tried to remove a non-existent client.");
+        return;
     }
-    else Logger::warn("Tried to remove a non-existent client.");
+
+    SDLNet_UDP_Unbind(SocketListener::getSocket(), c_id); 
+
+    _sessions[session_id]->removeClient(c_id);
+    if(_sessions[session_id]->size() == 0) {
+        // terminate session if empty
+        _sessions.erase(session_id);
+    }
 }
 // also remove client, but the session is already known
 void Server::removeClient(uint16_t c_id, uint8_t s_id) {
@@ -275,11 +286,14 @@ void Server::removeClient(uint16_t c_id, uint8_t s_id) {
         Logger::warn("Tried to access a non-existent session.");
         return;
     }
-    Logger::info("Removing a client.");
-    _sessions[s_id]->removeClient(c_id, SocketSpeaker::getSocket());
+
+    SDLNet_UDP_Unbind(SocketListener::getSocket(), c_id);
+    _free_client_ids.insert(c_id);
+    
+    _sessions[s_id]->removeClient(c_id);
     if(_sessions[s_id]->size() == 0) {
         // terminate session if empty
-        _sessions.erase(s_id);
+        Server::removeSession(s_id, SocketListener::getSocket());
     }
 }
 
@@ -301,9 +315,18 @@ int Server::queryAddress(IPaddress ip) {
     return -1;
 }
 
+IPaddress Server::getClientAddr(uint16_t c_id) {
+    for(auto &s : _sessions) {
+        int client_id = s.second->hasClient(c_id);
+        if(client_id != -1)
+            return s.second->getClientAddr(c_id);
+    }
+    return IPaddress();
+}
+
 // sessions
 int Server::addSession() {
-    static uint8_t id_counter = 0;    
+    static uint8_t id_counter = 1;    
     
     if(_sessions.size() >= MAX_SESSIONS) {
         return -1;
@@ -330,16 +353,16 @@ int Server::addSession() {
     return new_id;
 }
 
-void Server::removeSession(uint8_t s_id) {
-    Logger::info(("Stopping session... id=" + std::to_string(s_id)).c_str());
+void Server::removeSession(uint8_t s_id, UDPsocket socket) {
+    //Logger::info(("Stopping session... id=" + std::to_string(s_id)).c_str());
 
     auto session = _sessions.find(s_id);
     if(session == _sessions.end()) {
         Logger::warn("Tried to stop a non-existent session.");
         return;
     }
-
+    _free_session_ids.insert(session->first);
     // stop session (unbind all clients...)
-    session->second->Stop(SocketSpeaker::getSocket());
+    session->second->Stop(socket);
     _sessions.erase(session);
 }

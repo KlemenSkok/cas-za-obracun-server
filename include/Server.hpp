@@ -30,8 +30,9 @@ public:
     static void removeClient(uint16_t c_id, uint8_t s_id);
     static int queryClient(uint16_t c_id); // returns session_id of the queried client
     static int queryAddress(IPaddress ip); // returns channel of passed IP or -1
+    static IPaddress getClientAddr(uint16_t c_id);
 
     static int addSession(); // returns new session id
-    static void removeSession(uint8_t  id);
+    static void removeSession(uint8_t id, UDPsocket socket);
 };
 

@@ -11,7 +11,7 @@
 
 class Client {
 private:
-    uint16_t id; // == UDP channel
+    uint16_t id; // == UDP channel for SocketListener
     IPaddress ip;
 
 
@@ -20,7 +20,7 @@ public:
         //std::cout << "Client created\n";
     }
     ~Client() {
-        std::cout << "Client destructor called!\n";
+        //std::cout << "Client destructor called!\n";
     }
     uint16_t get_id();
     IPaddress get_ip();
