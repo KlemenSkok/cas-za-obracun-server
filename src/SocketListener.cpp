@@ -2,14 +2,13 @@
 // SocketListener.cpp
 
 #include "../include/Communication/SocketListener.hpp"
-#include "../include/Utility.hpp"
+#include "../include/Utilities/Utility.hpp"
+#include "../include/Utilities/Constants.hpp"
 #include "../include/Logging/Logger.hpp"
 
 #include <cstring>
 #include <utility>
 #include <chrono>
-
-#define MAX_PACKET_SIZE 512
 
 
 // -------------------------------------------------//

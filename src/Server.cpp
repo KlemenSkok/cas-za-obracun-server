@@ -2,33 +2,17 @@
 // Server.cpp
 
 #include "../include/Server.hpp"
-#include "../include/Utility.hpp"
+#include "../include/Utilities/Utility.hpp"
+#include "../include/Utilities/Constants.hpp"
 #include "../include/Logging/Logger.hpp"
 
 #include <iostream>
 #include <stdexcept>
 
-// header flags
-#define NUM_FLAGS 8
-
-#define FLAG_ACK 7
-#define FLAG_FIN 6
-#define FLAG_SYN 5
-#define FLAG_KEEPALIVE 4
-#define FLAG_DATA 3
-#define FLAG_PULL 2
-#define FLAG_PUSH 1
-
-// data offsets in packets [B]
-#define OFFSET_FLAGS 0
-#define OFFSET_SESSION_ID 1
-#define OFFSET_CLIENT_ID 2
-#define OFFSET_DATA 4
-
 
 
 // static members
-std::map<uint8_t, std::unique_ptr<GameSession>> Server::_sessions;
+std::unordered_map<uint8_t, std::unique_ptr<GameSession>> Server::_sessions;
 std::set<uint16_t> Server::_free_client_ids;
 std::set<uint8_t> Server::_free_session_ids;
 
@@ -174,8 +158,6 @@ void Server::processNewPackets() {
                         }
                         Server::removeClient(target_client, target_session);
 
-                        //std::cout << "prejet IP: " << formatIP(recv_msg->ip->host) << ":" << recv_msg->ip->port << '\n';
-
                         // poslji nazaj FIN
                         {
                             // treba dat v svoj scope zaradi inicializacije PacketData d(true); (error: transfer of control bypasses initialization of...)
@@ -197,6 +179,9 @@ void Server::processNewPackets() {
                         break;
                     case FLAG_DATA:
                         // forward message to game for further processing
+                        // todo: packet id tracking
+                        uint8_t s_id;
+                        data.getByOffset(s_id, sizeof(uint8_t), OFFSET_DATA);
                         break;
                     case FLAG_PULL:
                         // send back data about client's game

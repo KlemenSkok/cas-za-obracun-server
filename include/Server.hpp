@@ -14,7 +14,7 @@
 
 
 class Server {
-    static std::map<uint8_t, std::unique_ptr<GameSession>> _sessions;
+    static std::unordered_map<uint8_t, std::unique_ptr<GameSession>> _sessions;
     static std::set<uint16_t> _free_client_ids;
     static std::set<uint8_t> _free_session_ids;
 

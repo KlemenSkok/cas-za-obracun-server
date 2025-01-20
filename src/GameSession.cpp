@@ -23,6 +23,7 @@ uint8_t GameSession::get_id() {
 
 void GameSession::addClient(uint16_t id, IPaddress ip) {
     clients[id] = std::make_unique<Client>(id, ip);
+    players[id] = std::make_shared<Player>();
 }
 
 void GameSession::removeClient(uint16_t c_id) {
@@ -32,6 +33,7 @@ void GameSession::removeClient(uint16_t c_id) {
     }
     
     clients.erase(c_id);
+    players.erase(c_id);
 }
 
 bool GameSession::hasClient(uint16_t c_id) {

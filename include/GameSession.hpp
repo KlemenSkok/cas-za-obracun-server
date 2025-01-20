@@ -5,9 +5,11 @@
 
 #include <cstdint> // za playerid
 #include <map>
+#include <unordered_map>
 #include <memory>
 
 #include "Client.hpp"
+#include "Player.hpp"
 #include "Logging/Logger.hpp"
 
 #define MAX_PLAYERS 4 // per session
@@ -15,7 +17,8 @@
 
 class GameSession {
 private:
-    std::map<uint16_t, std::unique_ptr<Client>> clients;
+    std::unordered_map<uint16_t, std::unique_ptr<Client>> clients;
+    std::unordered_map<uint16_t, std::shared_ptr<Player>> players;
     uint8_t id;
 
 public: 
@@ -37,6 +40,8 @@ public:
     bool hasClient(uint16_t c_id);
     int queryAddress(IPaddress ip);
     IPaddress getClientAddr(uint16_t c_id);
+
+    void processPacket();
 
     void Stop(UDPsocket);
 

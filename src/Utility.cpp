@@ -1,7 +1,7 @@
 
 // Utility.cpp
 
-#include "../include/Utility.hpp"
+#include "../include/Utilities/Utility.hpp"
 #include "../include/Logging/Logger.hpp"
 #include <set>
 
