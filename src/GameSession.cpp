@@ -13,7 +13,7 @@ bool GameSession::acceptsPlayers() {
     return !this->isFull();
 }
 
-short GameSession::size() {
+uint8_t GameSession::size() {
     return clients.size();
 }
 
@@ -23,7 +23,7 @@ uint8_t GameSession::get_id() {
 
 void GameSession::addClient(uint16_t id, IPaddress ip) {
     clients[id] = std::make_unique<Client>(id, ip);
-    players[id] = std::make_shared<Player>();
+    players[id] = std::make_shared<Player>(id);
 }
 
 void GameSession::removeClient(uint16_t c_id) {
@@ -31,7 +31,6 @@ void GameSession::removeClient(uint16_t c_id) {
     if(clients.find(c_id) != clients.end()) {
         Logger::info(("Removed client. ID: " + std::to_string(c_id)).c_str());
     }
-    
     clients.erase(c_id);
     players.erase(c_id);
 }
@@ -64,4 +63,9 @@ IPaddress GameSession::getClientAddr(uint16_t c_id) {
         }
     }
     return IPaddress();
+}
+
+
+std::weak_ptr<Client> GameSession::getClient(uint16_t c_id) {
+    return this->clients[c_id];
 }

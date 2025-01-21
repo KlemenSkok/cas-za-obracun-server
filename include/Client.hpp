@@ -34,5 +34,8 @@ public:
     uint16_t get_id();
     IPaddress get_ip();
     bool checkTimeout();
+    void refreshPacketTime();
+    void updatePacketID(uint32_t p_id);
+    uint32_t getLastPacketID();
 
 };

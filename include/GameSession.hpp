@@ -17,7 +17,7 @@
 
 class GameSession {
 private:
-    std::unordered_map<uint16_t, std::unique_ptr<Client>> clients;
+    std::unordered_map<uint16_t, std::shared_ptr<Client>> clients;
     std::unordered_map<uint16_t, std::shared_ptr<Player>> players;
     uint8_t id;
 
@@ -33,7 +33,7 @@ public:
 
     bool isFull();
     bool acceptsPlayers();
-    short size(); // == number of clients
+    uint8_t size(); // == number of clients
 
     void addClient(uint16_t c_id, IPaddress ip);
     void removeClient(uint16_t c_id);
@@ -44,6 +44,8 @@ public:
     void processPacket();
 
     void Stop(UDPsocket);
+
+    std::weak_ptr<Client> getClient(uint16_t c_id);
 
 
 

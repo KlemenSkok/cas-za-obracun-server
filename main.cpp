@@ -3,6 +3,7 @@
 
 #include "include/Server.hpp"
 #include "include/Logging/Logger.hpp"
+#include "include/Utilities/Utility.hpp"
 
 #define PORT_OUT 42068 // port for outgoing traffic (speak)
 #define PORT_IN 42069 // port for incoming traffic (listen)

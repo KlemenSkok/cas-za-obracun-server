@@ -26,3 +26,14 @@ bool Client::checkTimeout() {
 
     return (difference > std::chrono::seconds(INACTIVITY_TIMEOUT));
 }
+
+void Client::refreshPacketTime() {
+    this->connection.lastPacketTime = std::chrono::steady_clock::now();
+}
+
+void Client::updatePacketID(uint32_t p_id) {
+    this->connection.lastPacketID = p_id;
+}
+uint32_t Client::getLastPacketID() {
+    return this->connection.lastPacketID;
+}

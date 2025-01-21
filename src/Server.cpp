@@ -129,6 +129,10 @@ void Server::processNewPackets() {
 
                 Logger::info(("New client connected. Client ID: " + std::to_string(client_id) + ", Session ID: " + std::to_string(session_id)).c_str());
 
+                //if(std::shared_ptr<Client> c_ptr = _sessions[session_id]->getClient(client_id).lock()) {
+                //    std::cout << "Last packet time: " << c_ptr->getLastPacketID() << '\n';
+                //}
+
                 continue;
             }
         }
@@ -171,6 +175,7 @@ void Server::processNewPackets() {
 
                             addMessageToQueue(std::move(recv_msg));
                             finish_packet = true;
+
                         }
 
                         break;
