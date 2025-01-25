@@ -4,6 +4,7 @@
 #include "../include/Utilities/Utility.hpp"
 #include "../include/Logging/Logger.hpp"
 #include <set>
+#include <iostream>
 
 namespace SDLUtils {
     bool initialize() {

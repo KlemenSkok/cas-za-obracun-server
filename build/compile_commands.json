@@ -1,0 +1,42 @@
+[
+{
+  "directory": "/home/klemen/Desktop/cas-za-obracun-server/build",
+  "command": "/usr/bin/g++  -I/home/klemen/Desktop/cas-za-obracun-server/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2/.. -isystem /home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2 -g -std=gnu++17 -o CMakeFiles/game_server.dir/main.cpp.o -c /home/klemen/Desktop/cas-za-obracun-server/main.cpp",
+  "file": "/home/klemen/Desktop/cas-za-obracun-server/main.cpp"
+},
+{
+  "directory": "/home/klemen/Desktop/cas-za-obracun-server/build",
+  "command": "/usr/bin/g++  -I/home/klemen/Desktop/cas-za-obracun-server/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2/.. -isystem /home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2 -g -std=gnu++17 -o CMakeFiles/game_server.dir/src/Client.cpp.o -c /home/klemen/Desktop/cas-za-obracun-server/src/Client.cpp",
+  "file": "/home/klemen/Desktop/cas-za-obracun-server/src/Client.cpp"
+},
+{
+  "directory": "/home/klemen/Desktop/cas-za-obracun-server/build",
+  "command": "/usr/bin/g++  -I/home/klemen/Desktop/cas-za-obracun-server/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2/.. -isystem /home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2 -g -std=gnu++17 -o CMakeFiles/game_server.dir/src/Containers.cpp.o -c /home/klemen/Desktop/cas-za-obracun-server/src/Containers.cpp",
+  "file": "/home/klemen/Desktop/cas-za-obracun-server/src/Containers.cpp"
+},
+{
+  "directory": "/home/klemen/Desktop/cas-za-obracun-server/build",
+  "command": "/usr/bin/g++  -I/home/klemen/Desktop/cas-za-obracun-server/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2/.. -isystem /home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2 -g -std=gnu++17 -o CMakeFiles/game_server.dir/src/GameSession.cpp.o -c /home/klemen/Desktop/cas-za-obracun-server/src/GameSession.cpp",
+  "file": "/home/klemen/Desktop/cas-za-obracun-server/src/GameSession.cpp"
+},
+{
+  "directory": "/home/klemen/Desktop/cas-za-obracun-server/build",
+  "command": "/usr/bin/g++  -I/home/klemen/Desktop/cas-za-obracun-server/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2/.. -isystem /home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2 -g -std=gnu++17 -o CMakeFiles/game_server.dir/src/Server.cpp.o -c /home/klemen/Desktop/cas-za-obracun-server/src/Server.cpp",
+  "file": "/home/klemen/Desktop/cas-za-obracun-server/src/Server.cpp"
+},
+{
+  "directory": "/home/klemen/Desktop/cas-za-obracun-server/build",
+  "command": "/usr/bin/g++  -I/home/klemen/Desktop/cas-za-obracun-server/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2/.. -isystem /home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2 -g -std=gnu++17 -o CMakeFiles/game_server.dir/src/SocketListener.cpp.o -c /home/klemen/Desktop/cas-za-obracun-server/src/SocketListener.cpp",
+  "file": "/home/klemen/Desktop/cas-za-obracun-server/src/SocketListener.cpp"
+},
+{
+  "directory": "/home/klemen/Desktop/cas-za-obracun-server/build",
+  "command": "/usr/bin/g++  -I/home/klemen/Desktop/cas-za-obracun-server/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2/.. -isystem /home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2 -g -std=gnu++17 -o CMakeFiles/game_server.dir/src/SocketSpeaker.cpp.o -c /home/klemen/Desktop/cas-za-obracun-server/src/SocketSpeaker.cpp",
+  "file": "/home/klemen/Desktop/cas-za-obracun-server/src/SocketSpeaker.cpp"
+},
+{
+  "directory": "/home/klemen/Desktop/cas-za-obracun-server/build",
+  "command": "/usr/bin/g++  -I/home/klemen/Desktop/cas-za-obracun-server/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include -I/home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2/.. -isystem /home/klemen/Desktop/cas-za-obracun-server/libs/include/SDL2 -g -std=gnu++17 -o CMakeFiles/game_server.dir/src/Utility.cpp.o -c /home/klemen/Desktop/cas-za-obracun-server/src/Utility.cpp",
+  "file": "/home/klemen/Desktop/cas-za-obracun-server/src/Utility.cpp"
+}
+]
