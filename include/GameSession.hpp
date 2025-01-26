@@ -7,10 +7,12 @@
 #include <map>
 #include <unordered_map>
 #include <memory>
+#include <vector>
 
 #include "Client.hpp"
 #include "Player.hpp"
 #include "Logging/Logger.hpp"
+#include "Containers.hpp"
 
 #define MAX_PLAYERS 4 // per session
 
@@ -22,6 +24,9 @@ private:
     uint8_t id;
 
 public: 
+    static std::vector<std::unique_ptr<UDPmessage>> pending_msgs;
+    
+
     GameSession(int id) : id(id) {
         //std::cout << "Session created. ID: " << id << '\n';
     }
@@ -41,7 +46,9 @@ public:
     int queryAddress(IPaddress ip);
     IPaddress getClientAddr(uint16_t c_id);
 
-    void processPacket();
+    void processPacket(PacketData data);
+    void manageSession();
+    std::vector<uint16_t> checkClientInactivity();
 
     void Stop(UDPsocket);
 

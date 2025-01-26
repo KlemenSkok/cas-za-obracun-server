@@ -4,6 +4,9 @@
 #include "../include/GameSession.hpp"
 
 
+std::vector<std::unique_ptr<UDPmessage>> GameSession::pending_msgs;
+
+
 bool GameSession::isFull() {
     return clients.size() >= MAX_PLAYERS;
 }
@@ -29,7 +32,7 @@ void GameSession::addClient(uint16_t id, IPaddress ip) {
 void GameSession::removeClient(uint16_t c_id) {
     
     if(clients.find(c_id) != clients.end()) {
-        Logger::info(("Removed client. ID: " + std::to_string(c_id)).c_str());
+        //Logger::info(("Removed client. ID: " + std::to_string(c_id)).c_str());
     }
     clients.erase(c_id);
     players.erase(c_id);
@@ -68,4 +71,25 @@ IPaddress GameSession::getClientAddr(uint16_t c_id) {
 
 std::weak_ptr<Client> GameSession::getClient(uint16_t c_id) {
     return this->clients[c_id];
+}
+
+/**
+ * Checks for inactive clients
+ * @return an `std::vector` containing inactive clients' ids (`uint16_t`)
+ */
+std::vector<uint16_t> GameSession::checkClientInactivity() {
+    std::vector<uint16_t> client_list;
+    for(auto& c : clients) {
+        if(c.second->checkTimeout()) {
+            client_list.push_back(c.first);
+        }
+    }
+    return client_list;
+}
+
+void GameSession::manageSession() {
+    // update the session, check for collisions etc.
+    // main loop for sessions
+
+
 }

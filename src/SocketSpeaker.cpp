@@ -21,12 +21,13 @@ std::queue<std::unique_ptr<UDPmessage>> sendQueue;
 std::mutex sendq_mutex;
 
 
-void addMessageToQueue(PacketData& data, int channel) {
+void addMessageToQueue(PacketData& data, IPaddress ip) {
     std::unique_ptr<UDPmessage> msg = std::make_unique<UDPmessage>();
     //msg->ip = std::make_unique<IPaddress>(server_addr);
-    msg->channel = channel;
+    msg->channel = -1;
     msg->len = data.size();
     msg->data = data.getRawData();
+    msg->ip = std::make_unique<IPaddress>(ip);
 
     {
         std::lock_guard<std::mutex> lock(sendq_mutex);
@@ -41,13 +42,16 @@ void addMessageToQueue(std::unique_ptr<UDPmessage> msg) {
     }
 }
 
-void addMessagesToQueue(std::vector<std::unique_ptr<UDPmessage>> data) {
+// also empties the vector
+void addMessagesToQueue(std::vector<std::unique_ptr<UDPmessage>>& data) {
     {
         std::lock_guard<std::mutex> lock(sendq_mutex);
         for(auto& msg : data) {
             sendQueue.push(std::move(msg));
         }
     }
+    data.resize(0);
+    data.shrink_to_fit();
 }
 
 

@@ -6,7 +6,8 @@
 
 
 // communication constants
-#define INACTIVITY_TIMEOUT 60 // 60s
+#define INACTIVITY_TIMEOUT 10 // 60s
+#define INACTIVITY_CHECK_INTERVAL 1000 // 1s
 #define MAX_PACKET_SIZE 512
 
 // PACKET HEADER CONSTANTS

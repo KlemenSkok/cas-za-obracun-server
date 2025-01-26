@@ -17,6 +17,32 @@ std::set<uint16_t> Server::_free_client_ids;
 std::set<uint8_t> Server::_free_session_ids;
 
 
+
+// server main loop
+void Server::Run() {
+    bool quit = false;
+
+    while(!quit) {
+        
+        // collect the new packets
+        Server::processNewPackets();
+
+        // update game sessions
+        Server::manageGameSessions();
+
+        // send pending packets from game sessions
+        Server::sendPendingPackets();
+
+        // kick inactive clients
+        Server::checkClientInactivity();
+
+
+        // --------------------------------------
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));         
+    }
+}
+
 /**
  * @param i port to listen on
  * @param o port to send from
@@ -47,21 +73,6 @@ void Server::Cleanup() {
     SDLNet_UDP_Close(SocketListener::getSocket());
 }
 
-void Server::Run() {
-    bool quit = false;
-
-    while(!quit) {
-        
-        processNewPackets();
-
-        // ostale funkcionalnosti
-
-
-        // --------------------------------------
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));         
-    }
-}
 
 void Server::processNewPackets() {
 
@@ -149,22 +160,21 @@ void Server::processNewPackets() {
                             // this is a duplicate message; the client had already been removed
                             break;
                         }
-
-                        // terminate connection, send FIN back
-                        uint8_t target_session;
-                        uint16_t target_client;
-                        try {
-                            data.getByOffset(target_session, sizeof(uint8_t), OFFSET_SESSION_ID);
-                            data.getByOffset(target_client, sizeof(uint16_t), OFFSET_CLIENT_ID);
-                        }
-                        catch (std::exception &e) {
-                            Logger::warn("Failed to read packet contents.");
-                        }
-                        Server::removeClient(target_client, target_session);
-
-                        // poslji nazaj FIN
                         {
-                            // treba dat v svoj scope zaradi inicializacije PacketData d(true); (error: transfer of control bypasses initialization of...)
+                            // terminate connection, send FIN back
+                            uint8_t target_session;
+                            uint16_t target_client;
+                            try {
+                                data.getByOffset(target_session, sizeof(uint8_t), OFFSET_SESSION_ID);
+                                data.getByOffset(target_client, sizeof(uint16_t), OFFSET_CLIENT_ID);
+                            }
+                            catch (std::exception &e) {
+                                Logger::warn("Failed to read packet contents.");
+                            }
+                            Server::removeClient(target_client, target_session);
+                            Logger::info(("Removed client. ID: " + std::to_string(target_client)).c_str());
+
+                            // poslji nazaj FIN
                             PacketData d(true);
                             d.flags() |= (1 << FLAG_ACK); // acknowledge the FIN
                             d.flags() |= (1 << FLAG_FIN); // send FIN back
@@ -175,21 +185,39 @@ void Server::processNewPackets() {
 
                             addMessageToQueue(std::move(recv_msg));
                             finish_packet = true;
-
                         }
-
                         break;
                     case FLAG_KEEPALIVE:
                         // just update timestamp of the last keepalive message
+                        // duplicate packets aren't a problem
+                        {
+                            uint8_t s_id;
+                            uint16_t c_id;
+                            try {
+                                data.getByOffset(s_id, sizeof(uint8_t), OFFSET_SESSION_ID);
+                                data.getByOffset(c_id, sizeof(uint16_t), OFFSET_CLIENT_ID);
+
+                                if(std::shared_ptr<Client> client = _sessions[s_id]->getClient(c_id).lock()) {
+                                    client->refreshPacketTime();
+                                }
+                                //Logger::info("Keepalive message acknowledged.");
+                            }
+                            catch (std::exception &e) {
+                                Logger::warn("Failed to read packet contents.");
+                            }
+                        }
                         break;
                     case FLAG_DATA:
                         // forward message to game for further processing
                         // todo: packet id tracking
-                        uint8_t s_id;
-                        data.getByOffset(s_id, sizeof(uint8_t), OFFSET_DATA);
+                        {
+                            uint8_t s_id;
+                            data.getByOffset(s_id, sizeof(uint8_t), OFFSET_DATA);
+                        }
                         break;
                     case FLAG_PULL:
                         // send back data about client's game
+                        // todo
                         break;
                     //default:
                         //Logger::info(("A packet was ignored: " + std::string((char*)data.getRawData().get())).c_str());
@@ -206,6 +234,45 @@ void Server::processNewPackets() {
 
         recv_msg.reset();
         num_packets++;
+    }
+
+}
+
+void Server::manageGameSessions() {
+    for(auto& s : _sessions) {
+
+    }
+}
+
+void Server::sendPendingPackets() {
+    addMessagesToQueue(GameSession::pending_msgs);
+}
+
+/**
+ * Checks for inactive clients and removes them.
+ */
+void Server::checkClientInactivity() {
+    static std::chrono::steady_clock::time_point lastCheckTime = std::chrono::steady_clock::now();
+
+    if(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - lastCheckTime).count() > INACTIVITY_CHECK_INTERVAL)  {
+        for(auto& s : _sessions) {
+            auto inactive_clients = s.second->checkClientInactivity();
+            if(!inactive_clients.empty()) {
+                for(auto c_id : inactive_clients) {
+                    
+                    PacketData d(true);
+                    d.flags() |= (1 << FLAG_ACK); // acknowledge the FIN
+                    d.flags() |= (1 << FLAG_FIN); // send FIN back
+                    addMessageToQueue(d, Server::getClientAddr(c_id));
+
+                    Server::removeClient(c_id, s.first);
+                    Logger::info((std::string("Removed inactive client. ID: " + std::to_string(c_id))).c_str());
+                }
+            }
+            if(_sessions.empty())
+                break;
+        }
+        lastCheckTime = std::chrono::steady_clock::now();
     }
 
 }
