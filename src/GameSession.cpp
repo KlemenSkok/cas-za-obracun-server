@@ -2,6 +2,7 @@
 // GameSession.cpp
 
 #include "../include/GameSession.hpp"
+#include "Utilities/Constants.hpp"
 
 
 std::vector<std::unique_ptr<UDPmessage>> GameSession::pending_msgs;
@@ -87,9 +88,36 @@ std::vector<uint16_t> GameSession::checkClientInactivity() {
     return client_list;
 }
 
+void GameSession::processPacket(PacketData data) {
+    uint32_t packet_id;
+    uint16_t client_id;
+    try {
+        data.getByOffset(client_id, sizeof(uint16_t), OFFSET_CLIENT_ID);
+        data.getByOffset(packet_id, sizeof(uint32_t), OFFSET_PACKET_ID);
+    }
+    catch(std::exception& e) {
+        Logger::warn(e.what());
+        return;
+    }
+    std::shared_ptr<Client> c = clients[client_id];
+
+    // ensure duplicate packet handling
+    if(c->getLastPacketID() <= packet_id) {
+        // this is a duplicate packet, ignore it
+        return;
+    }
+
+    // now we can process the packet
+    c->updatePacketID(packet_id);
+    c->updatePacketTime();
+
+    // todo
+    
+}
+
 void GameSession::manageSession() {
     // update the session, check for collisions etc.
     // main loop for sessions
-
+    // todo
 
 }

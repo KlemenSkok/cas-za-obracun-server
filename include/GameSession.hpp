@@ -43,6 +43,7 @@ public:
     void addClient(uint16_t c_id, IPaddress ip);
     void removeClient(uint16_t c_id);
     bool hasClient(uint16_t c_id);
+    std::weak_ptr<Client> getClient(uint16_t c_id);
     int queryAddress(IPaddress ip);
     IPaddress getClientAddr(uint16_t c_id);
 
@@ -52,7 +53,6 @@ public:
 
     void Stop(UDPsocket);
 
-    std::weak_ptr<Client> getClient(uint16_t c_id);
 
 
 

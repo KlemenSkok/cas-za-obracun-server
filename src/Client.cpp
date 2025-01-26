@@ -16,7 +16,7 @@ IPaddress Client::get_ip() {
 }
 
 /**
- * Client, ki bo dolocen cas ne bo poslal sporocila (vsaj keepalive) bo kickan.
+ * Client, ki bo dolocen cas ne bo poslal sporocila (niti keepalive) bo kickan.
  * Ta funkcija doloci, ali je bil timeout za neaktivnost presezen
  @return true, ce je razlika v casu presegla dolocen timeout
  */
@@ -27,7 +27,7 @@ bool Client::checkTimeout() {
     return (difference > std::chrono::seconds(INACTIVITY_TIMEOUT));
 }
 
-void Client::refreshPacketTime() {
+void Client::updatePacketTime() {
     this->connection.lastPacketTime = std::chrono::steady_clock::now();
 }
 

@@ -85,8 +85,7 @@ void Server::processNewPackets() {
     std::unique_ptr<UDPmessage> recv_msg;
     while(getMessageFromQueue(recv_msg) && num_packets < max_packets) {
         
-        // handle the message
-        // --------------------------------------
+        // extract packet data
         PacketData data(recv_msg->data.get(), recv_msg->len);
 
         // check if we got a new client
@@ -198,7 +197,7 @@ void Server::processNewPackets() {
                                 data.getByOffset(c_id, sizeof(uint16_t), OFFSET_CLIENT_ID);
 
                                 if(std::shared_ptr<Client> client = _sessions[s_id]->getClient(c_id).lock()) {
-                                    client->refreshPacketTime();
+                                    client->updatePacketTime();
                                 }
                                 //Logger::info("Keepalive message acknowledged.");
                             }
@@ -213,6 +212,7 @@ void Server::processNewPackets() {
                         {
                             uint8_t s_id;
                             data.getByOffset(s_id, sizeof(uint8_t), OFFSET_DATA);
+                            _sessions[s_id]->processPacket(data);
                         }
                         break;
                     case FLAG_PULL:
