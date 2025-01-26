@@ -1,3 +1,0 @@
-/home/klemen/Desktop/cas-za-obracun-server/build/CMakeFiles/game_server.dir
-/home/klemen/Desktop/cas-za-obracun-server/build/CMakeFiles/edit_cache.dir
-/home/klemen/Desktop/cas-za-obracun-server/build/CMakeFiles/rebuild_cache.dir
