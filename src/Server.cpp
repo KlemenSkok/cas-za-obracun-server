@@ -240,7 +240,7 @@ void Server::processNewPackets() {
 
 void Server::manageGameSessions() {
     for(auto& s : _sessions) {
-
+        s->manageSession();
     }
 }
 

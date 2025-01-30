@@ -165,3 +165,25 @@ void PacketData::append(T data) {
         throw std::runtime_error("Unsupported type size for PacketData::append.");
     }
 }
+
+
+typedef struct {
+    float x, y;
+} Vector2D;
+
+typedef struct {
+    uint8_t w = 0, 
+            a = 0, 
+            s = 0, 
+            d = 0;
+} KeyStates;
+
+struct Player {
+    Vector2D position;
+    float direction;
+    KeyStates keyStates;
+
+
+    
+
+};

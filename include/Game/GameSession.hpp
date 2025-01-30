@@ -23,11 +23,13 @@ private:
     std::unordered_map<uint16_t, std::shared_ptr<Player>> players;
     uint8_t id;
 
+    Uint32 lastUpdate;
+
 public: 
     static std::vector<std::unique_ptr<UDPmessage>> pending_msgs;
     
 
-    GameSession(int id) : id(id) {
+    GameSession(int id) : id(id), lastUpdate(SDL_GetTicks()) {
         //std::cout << "Session created. ID: " << id << '\n';
     }
     ~GameSession() {
@@ -50,6 +52,8 @@ public:
     void processPacket(PacketData data);
     void manageSession();
     std::vector<uint16_t> checkClientInactivity();
+
+    void sendGameUpdatesToClient(uint16_t c_id); // 
 
     void Stop(UDPsocket);
 

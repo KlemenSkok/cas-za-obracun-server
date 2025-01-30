@@ -118,6 +118,41 @@ void GameSession::processPacket(PacketData data) {
 void GameSession::manageSession() {
     // update the session, check for collisions etc.
     // main loop for sessions
-    // todo
+    // 60Hz server tick rate
+    Uint32 now = SDL_GetTicks();
+    if(now - this->lastUpdate < SESSION_UPDATE_DELAY) {
+        return;
+    }
+    int deltaTime = now - this->lastUpdate;
+    lastUpdate = now;
+
+    // update everithing (using deltaTime)
+    // check for collisions
+
+
+    // send out data to players
+    for(auto& p : players) {
+        GameSession::sendGameUpdatesToClient(p.first);
+    }
+
+}
+
+void GameSession::sendGameUpdatesToClient(uint16_t c_id) {
+    
+    PacketData d(true);
+    d.flags() |= (1 << FLAG_DATA);
+    d.append(this->id);
+    d.append(c_id);
+
+    // ! todo
+    // append data about other players (if in range)
+    // append data about other objects (like projectiles)
+    
+    std::unique_ptr<UDPmessage> msg = std::make_unique<UDPmessage>();
+    msg->ip = std::make_unique<IPaddress>(clients[c_id]->get_ip());
+    msg->data = d.getRawData();
+    msg->len = d.size();
+
+    GameSession::pending_msgs.push_back(std::move(msg));
 
 }
