@@ -1,10 +1,10 @@
 
 // Server.cpp
 
-#include "../include/Server.hpp"
-#include "../include/Utilities/Utility.hpp"
-#include "../include/Utilities/Constants.hpp"
-#include "../include/Logging/Logger.hpp"
+#include "Server.hpp"
+#include "Utilities/Utility.hpp"
+#include "Utilities/Constants.hpp"
+#include "Logging/Logger.hpp"
 
 #include <iostream>
 #include <stdexcept>

@@ -1,8 +1,8 @@
 
 // Client.cpp
 
-#include "../include/Client.hpp"
-#include "../include/Utilities/Constants.hpp"
+#include "Game/Client.hpp"
+#include "Utilities/Constants.hpp"
 
 
 // static members and function definitions

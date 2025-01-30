@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "GameSession.hpp"
+#include "Game/GameSession.hpp"
 #include "Communication/SocketListener.hpp"
 #include "Communication/SocketSpeaker.hpp"
 #include "Containers.hpp"

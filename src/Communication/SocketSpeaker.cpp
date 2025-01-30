@@ -1,10 +1,10 @@
 
 // SocketSpeaker.cpp
 
-#include "../include/Communication/SocketSpeaker.hpp"
-#include "../include/Utilities/Utility.hpp"
-#include "../include/Utilities/Constants.hpp"
-#include "../include/Logging/Logger.hpp"
+#include "Communication/SocketSpeaker.hpp"
+#include "Utilities/Utility.hpp"
+#include "Utilities/Constants.hpp"
+#include "Logging/Logger.hpp"
 
 #include <cstring>
 #include <utility>

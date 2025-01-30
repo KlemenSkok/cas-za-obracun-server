@@ -1,7 +1,7 @@
 
 // GameSession.cpp
 
-#include "../include/GameSession.hpp"
+#include "Game/GameSession.hpp"
 #include "Utilities/Constants.hpp"
 
 
