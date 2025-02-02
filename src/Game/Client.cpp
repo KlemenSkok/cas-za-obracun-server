@@ -22,18 +22,25 @@ IPaddress Client::get_ip() {
  */
 bool Client::checkTimeout() {
     auto now = std::chrono::steady_clock::now();
-    auto difference = now - this->connection.lastPacketTime;
+    auto difference = now - this->connection.lastRecvPacketTime;
 
     return (difference > std::chrono::seconds(INACTIVITY_TIMEOUT));
 }
 
-void Client::updatePacketTime() {
-    this->connection.lastPacketTime = std::chrono::steady_clock::now();
+void Client::updateLastRecvPacketTime() {
+    this->connection.lastRecvPacketTime = std::chrono::steady_clock::now();
 }
 
-void Client::updatePacketID(uint32_t p_id) {
-    this->connection.lastPacketID = p_id;
+void Client::updateLastRecvPacketID(uint32_t p_id) {
+    this->connection.lastRecvPacketID = p_id;
 }
-uint32_t Client::getLastPacketID() {
-    return this->connection.lastPacketID;
+uint32_t Client::getLastRecvPacketID() {
+    return this->connection.lastRecvPacketID;
+}
+/**
+ * Returns and increments the packet ID
+ * @return ID of the packet that will be sent
+ */
+uint32_t Client::getLastSentPacketID() {
+    return ++this->connection.lastSentPacketID;
 }

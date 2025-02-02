@@ -2,7 +2,6 @@
 // PacketTypes.cpp
 
 
-
 #include "Communication/PacketTypes.hpp"
 
 using namespace data_packets;
@@ -17,7 +16,7 @@ int PlayerData::size() {
 }
 
 PlayerData::PlayerData() 
-    : id(0), position{0, 0}, velocity{0, 0}, keyStates(0), direction(0.0f) {}
+    : id(0), position{0.0f, 0.0f}, velocity{0.0f, 0.0f}, keyStates(0), direction(0.0f) {}
 
 
 

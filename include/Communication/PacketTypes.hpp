@@ -11,12 +11,12 @@
 
 enum class PacketType: uint8_t {
     // client->server
-    PLAYER_UPDATES, // packet sent from client to update movement keys states
+    PLAYER_UPDATES,         // client->server: movement keys states updates
     // ...
 
     // server->client
-    PLAYERS_IN_RANGE, // info about other players (and self) that are sent periodically
-    GAME_STATE // game state, score, time remaining etc.
+    PLAYERS_IN_RANGE,       // server->client: info about other players (and self) that are sent periodically
+    GAME_STATE              // server->client: game state, score, time remaining etc.
 };
 
 

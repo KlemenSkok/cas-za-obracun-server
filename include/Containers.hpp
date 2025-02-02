@@ -14,6 +14,23 @@
 // tukaj so definirane strukture za celoten server
 
 
+// --------------------------------------- //
+//                KEY STATES               //
+// --------------------------------------- //
+
+// w,a,s,d key states
+typedef struct {
+    uint8_t w = 0, 
+            a = 0, 
+            s = 0, 
+            d = 0;
+} KeyStates;
+
+
+// ---------------------------------------- //
+//                UDP MESSAGE               //
+// ---------------------------------------- //
+
 struct UDPmessage {
     int channel; // packet channel
     std::unique_ptr<Uint8[]> data;
@@ -61,6 +78,9 @@ struct UDPmessage {
 
 };
 
+// ----------------------------------------- //
+//                PACKET DATA                //
+// ----------------------------------------- //
 
 class PacketData {
     std::vector<Uint8> data;
@@ -172,18 +192,3 @@ void PacketData::append(float data);
 
 template<>
 void PacketData::getByOffset(float& target, size_t size, size_t offset);
-
-
-
-
-typedef struct {
-    float x, y;
-} Vector2D;
-
-typedef struct {
-    uint8_t w = 0, 
-            a = 0, 
-            s = 0, 
-            d = 0;
-} KeyStates;
-

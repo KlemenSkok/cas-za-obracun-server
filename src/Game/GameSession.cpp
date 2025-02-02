@@ -28,7 +28,7 @@ uint8_t GameSession::get_id() {
 }
 
 void GameSession::addClient(uint16_t id, IPaddress ip) {
-    clients[id] = std::make_unique<Client>(id, ip);
+    clients[id] = std::make_shared<Client>(id, ip);
     players[id] = std::make_shared<Player>(id);
 }
 
@@ -50,7 +50,7 @@ void GameSession::Stop(UDPsocket socket) {
     for(auto &c : clients) {
         SDLNet_UDP_Unbind(socket, c.second->get_id());
     }
-    // ostalo se spuca samo od sebe (zaradi unique_ptr)
+    // ostalo se spuca samo od sebe (zaradi shared_ptr)
 }
 
 int GameSession::queryAddress(IPaddress ip) {
@@ -101,17 +101,16 @@ void GameSession::processPacket(PacketData data) {
         Logger::warn(e.what());
         return;
     }
-    std::shared_ptr<Client> c = clients[client_id];
 
     // ensure duplicate packet handling
-    if(c->getLastPacketID() <= packet_id) {
+    if(packet_id <= this->clients[client_id]->getLastRecvPacketID()) {
         // this is a duplicate packet, ignore it
         return;
     }
 
     // now we can process the packet
-    c->updatePacketID(packet_id);
-    c->updatePacketTime();
+    this->clients[client_id]->updateLastRecvPacketID(packet_id);
+    this->clients[client_id]->updateLastRecvPacketTime();
 
     // todo
     
@@ -141,21 +140,30 @@ void GameSession::manageSession() {
 
 void GameSession::sendGameUpdatesToClient(uint16_t c_id) {
     
-    PacketData d(true);
-    d.flags() |= (1 << FLAG_DATA);
-    d.append(this->id);
-    d.append(c_id);
+    // send data about states for players 
+    GameSession::sendPlayerStatesToClient(c_id);
 
     // ! todo
     // append data about other objects (like projectiles)
 
+}
+
+void GameSession::sendPlayerStatesToClient(uint16_t c_id) {
+
+    PacketData d(true);
+    d.flags() |= (1 << FLAG_DATA);                      // 1 B
+    d.append(this->id);                                 // 1 B
+    d.append(c_id);                                     // 2 B
+    d.append(clients[c_id]->getLastSentPacketID());     // 4 B
+    d.append((uint8_t)PacketType::PLAYERS_IN_RANGE);    // 1 B
+
     // the target player is always first
-    players[c_id]->dumpMovement().serialize(d);
+    players[c_id]->dumpMovement().serialize(d);         // 23 B
     
     // append other players
     for (auto& p : players) {
         if(p.first != c_id) {
-            p.second->dumpMovement().serialize(d);
+            p.second->dumpMovement().serialize(d);      // 23 B (each player)
         }
     }
     
@@ -165,5 +173,7 @@ void GameSession::sendGameUpdatesToClient(uint16_t c_id) {
     msg->len = d.size();
 
     GameSession::pending_msgs.push_back(std::move(msg));
+
+    // expected packet size: 32 B (+ 23 B for each added player)
 
 }

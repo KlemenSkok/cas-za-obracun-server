@@ -28,7 +28,7 @@ public:
     static void processNewPackets();
     static void manageGameSessions();
     static void sendPendingPackets();
-    static void checkClientInactivity(); 
+    static void checkClientInactivity();
 
     // client manipulation
     static int addClient(IPaddress ip); // returns client_id or -1 on failure

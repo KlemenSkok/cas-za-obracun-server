@@ -197,7 +197,7 @@ void Server::processNewPackets() {
                                 data.getByOffset(c_id, sizeof(uint16_t), OFFSET_CLIENT_ID);
 
                                 if(std::shared_ptr<Client> client = _sessions[s_id]->getClient(c_id).lock()) {
-                                    client->updatePacketTime();
+                                    client->updateLastRecvPacketTime();
                                 }
                                 //Logger::info("Keepalive message acknowledged.");
                             }
@@ -211,7 +211,7 @@ void Server::processNewPackets() {
                         // todo: packet id tracking
                         {
                             uint8_t s_id;
-                            data.getByOffset(s_id, sizeof(uint8_t), OFFSET_DATA);
+                            data.getByOffset(s_id, sizeof(uint8_t), OFFSET_SESSION_ID);
                             _sessions[s_id]->processPacket(data);
                         }
                         break;

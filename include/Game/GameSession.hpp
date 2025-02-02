@@ -54,6 +54,7 @@ public:
     std::vector<uint16_t> checkClientInactivity();
 
     void sendGameUpdatesToClient(uint16_t c_id); // 
+    void sendPlayerStatesToClient(uint16_t c_id);
 
     void Stop(UDPsocket);
 
