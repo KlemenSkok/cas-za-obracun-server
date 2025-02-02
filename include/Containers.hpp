@@ -166,6 +166,15 @@ void PacketData::append(T data) {
     }
 }
 
+// template overloads for float types
+template<>
+void PacketData::append(float data);
+
+template<>
+void PacketData::getByOffset(float& target, size_t size, size_t offset);
+
+
+
 
 typedef struct {
     float x, y;
@@ -178,12 +187,3 @@ typedef struct {
             d = 0;
 } KeyStates;
 
-struct Player {
-    Vector2D position;
-    float direction;
-    KeyStates keyStates;
-
-
-    
-
-};

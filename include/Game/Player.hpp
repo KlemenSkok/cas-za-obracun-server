@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include <cstdint>
+#include "Communication/PacketTypes.hpp"
 
+#include <cstdint>
 
 class Player {
 
@@ -12,12 +13,15 @@ class Player {
 
 public:
 
-    struct {
-        float x, y;
-    } pos;
-    float velocityX, velocityY;
+    struct { float x, y; } position;
+    struct { float x, y; } velocity;
+    uint8_t keyStates;
+    float direction;
+
 
     Player(uint16_t id) : id(id) {}
     ~Player() = default;
+
+    data_packets::PlayerData dumpMovement(); // dump all data necessary for player movement
 
 };

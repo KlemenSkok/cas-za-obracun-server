@@ -73,6 +73,35 @@ std::string PacketData::dump() {
     return oss.str();
 }
 
+template<>
+void PacketData::append<float>(float data) {
+    static_assert(sizeof(float) == 4, "Unexpected float size.");
+
+    Uint32 asInt;
+    std::memcpy(&asInt, &data, sizeof(float));
+
+    Uint32 network_order;
+    SDLNet_Write32(asInt, &network_order);
+
+    this->data.insert(this->data.end(),
+                      reinterpret_cast<Uint8*>(&network_order),
+                      reinterpret_cast<Uint8*>(&network_order) + sizeof(Uint32));
+}
+
+template<>
+void PacketData::getByOffset(float& target, size_t size, size_t offset) {
+    if (offset + sizeof(float) > data.size()) {
+        throw std::out_of_range("Offset out of bounds");
+    }
+
+    Uint32 network_order;
+    std::memcpy(&network_order, &data[offset], sizeof(Uint32));
+
+    Uint32 host_order = SDLNet_Read32(&network_order);
+    std::memcpy(&target, &host_order, sizeof(float)); // Reinterpret as float
+}
+
+
 
 // template funkcije premaknjene direkt v header
 /*

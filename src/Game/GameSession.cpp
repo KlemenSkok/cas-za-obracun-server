@@ -4,6 +4,8 @@
 #include "Game/GameSession.hpp"
 #include "Utilities/Constants.hpp"
 
+#include <vector>
+
 
 std::vector<std::unique_ptr<UDPmessage>> GameSession::pending_msgs;
 
@@ -145,8 +147,17 @@ void GameSession::sendGameUpdatesToClient(uint16_t c_id) {
     d.append(c_id);
 
     // ! todo
-    // append data about other players (if in range)
     // append data about other objects (like projectiles)
+
+    // the target player is always first
+    players[c_id]->dumpMovement().serialize(d);
+    
+    // append other players
+    for (auto& p : players) {
+        if(p.first != c_id) {
+            p.second->dumpMovement().serialize(d);
+        }
+    }
     
     std::unique_ptr<UDPmessage> msg = std::make_unique<UDPmessage>();
     msg->ip = std::make_unique<IPaddress>(clients[c_id]->get_ip());
