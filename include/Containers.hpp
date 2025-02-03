@@ -25,6 +25,8 @@ typedef struct {
             s = 0, 
             d = 0;
 } KeyStates;
+uint8_t encodeKeyStates(const KeyStates& ks);
+void decodeKeyStates(const uint8_t& data, KeyStates& ks);
 
 
 // ---------------------------------------- //

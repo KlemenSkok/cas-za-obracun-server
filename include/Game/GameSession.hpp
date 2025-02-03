@@ -50,6 +50,7 @@ public:
     IPaddress getClientAddr(uint16_t c_id);
 
     void processPacket(PacketData data);
+    void processPlayerUpdates(PacketData data);
     void manageSession();
     std::vector<uint16_t> checkClientInactivity();
 

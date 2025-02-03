@@ -47,6 +47,6 @@ void PlayerData::deserialize(PacketData& packet, size_t offset) {
     packet.getByOffset(keyStates, sizeof(uint8_t), offset);
     offset += sizeof(uint8_t);
     // direction
-    packet.getByOffset(position.x, sizeof(float), offset);
+    packet.getByOffset(direction, sizeof(float), offset);
     offset += sizeof(float);
 }

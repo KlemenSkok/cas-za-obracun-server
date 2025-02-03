@@ -3,6 +3,7 @@
 
 #include "Game/GameSession.hpp"
 #include "Utilities/Constants.hpp"
+#include "Communication/PacketTypes.hpp"
 
 #include <vector>
 
@@ -93,9 +94,11 @@ std::vector<uint16_t> GameSession::checkClientInactivity() {
 void GameSession::processPacket(PacketData data) {
     uint32_t packet_id;
     uint16_t client_id;
+    uint8_t packet_type;
     try {
         data.getByOffset(client_id, sizeof(uint16_t), OFFSET_CLIENT_ID);
         data.getByOffset(packet_id, sizeof(uint32_t), OFFSET_PACKET_ID);
+        data.getByOffset(packet_type, sizeof(uint8_t), OFFSET_PACKET_TYPE);
     }
     catch(std::exception& e) {
         Logger::warn(e.what());
@@ -113,7 +116,23 @@ void GameSession::processPacket(PacketData data) {
     this->clients[client_id]->updateLastRecvPacketTime();
 
     // todo
+    switch((PacketType)packet_type) {
+        case PacketType::PLAYER_UPDATES:
+            // process players in range
+            GameSession::processPlayerUpdates(data);
+            break;
+        default:
+            Logger::warn("Unknown packet type.");
+    }
     
+}
+
+void GameSession::processPlayerUpdates(PacketData data) {
+    using namespace data_packets;
+    PlayerData p;
+    p.deserialize(data, OFFSET_DATA);
+    players[p.id]->importChanges(p);
+
 }
 
 void GameSession::manageSession() {

@@ -6,6 +6,22 @@
 
 #include <sstream>
 
+
+uint8_t encodeKeyStates(const KeyStates& ks) {
+    uint8_t data = 0;
+    data |= (ks.w) ? 0b1000 : 0;
+    data |= (ks.a) ? 0b0100 : 0;
+    data |= (ks.s) ? 0b0010 : 0;
+    data |= (ks.d) ? 0b0001 : 0;
+    return data;
+}
+void decodeKeyStates(const uint8_t& data, KeyStates& ks) {
+    ks.w = (data & 0b1000) ? 1 : 0;
+    ks.a = (data & 0b0100) ? 1 : 0;
+    ks.s = (data & 0b0010) ? 1 : 0;
+    ks.d = (data & 0b0001) ? 1 : 0;
+}
+
 // -------------------------------------------------//
 //                                                  //
 //                  UDP MESSAGE                     //

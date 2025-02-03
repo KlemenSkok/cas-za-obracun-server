@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Communication/PacketTypes.hpp"
+#include "Containers.hpp"
 
 #include <cstdint>
 
@@ -15,7 +16,7 @@ public:
 
     struct { float x, y; } position;
     struct { float x, y; } velocity;
-    uint8_t keyStates;
+    KeyStates keyStates;
     float direction;
 
 
@@ -23,5 +24,5 @@ public:
     ~Player() = default;
 
     data_packets::PlayerData dumpMovement(); // dump all data necessary for player movement
-
+    void importChanges(data_packets::PlayerData);
 };
