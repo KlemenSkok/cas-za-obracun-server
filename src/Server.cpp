@@ -212,7 +212,8 @@ void Server::processNewPackets() {
                         {
                             uint8_t s_id;
                             data.getByOffset(s_id, sizeof(uint8_t), OFFSET_SESSION_ID);
-                            _sessions[s_id]->processPacket(data);
+                            if(_sessions.find(s_id) != _sessions.end())
+                                _sessions[s_id]->processPacket(data);
                         }
                         break;
                     case FLAG_PULL:

@@ -149,9 +149,12 @@ void GameSession::manageSession() {
     int deltaTime = now - this->lastUpdate;
     lastUpdate = now;
 
+
     // update everithing (using deltaTime)
     // check for collisions
-
+    for(auto& p : players) {
+        p.second->update(deltaTime / 1000.0f);
+    }
 
     // send out data to players
     for(auto& p : players) {
