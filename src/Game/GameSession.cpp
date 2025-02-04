@@ -129,9 +129,12 @@ void GameSession::processPacket(PacketData data) {
 
 void GameSession::processPlayerUpdates(PacketData data) {
     using namespace data_packets;
-    PlayerData p;
-    p.deserialize(data, OFFSET_DATA);
-    players[p.id]->importChanges(p);
+    PlayerKeyStates pks;
+    uint16_t c_id;
+    data.getByOffset(c_id, sizeof(uint16_t), OFFSET_CLIENT_ID);
+
+    pks.deserialize(data, OFFSET_DATA);
+    players[c_id]->importKeyStates(pks);
 
 }
 

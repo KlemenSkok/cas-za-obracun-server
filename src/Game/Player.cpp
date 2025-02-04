@@ -23,10 +23,6 @@ data_packets::PlayerData Player::dumpMovement() {
     return data;
 }
 
-void Player::importChanges(data_packets::PlayerData data) {
+void Player::importKeyStates(data_packets::PlayerKeyStates data) {
     decodeKeyStates(data.keyStates, this->keyStates);
-
-    //! temporary:
-    this->position.x = data.position.x;
-    this->position.y = data.position.y;
 }

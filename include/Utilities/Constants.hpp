@@ -33,3 +33,8 @@
 #define OFFSET_PACKET_ID 4
 #define OFFSET_PACKET_TYPE 8
 #define OFFSET_DATA 9
+
+
+#define PLAYER_MAX_SPEED 200.0f // [px/s]
+#define PLAYER_ACCELERATION 1200.0f // [px/s^2]
+#define PLAYER_FRICTION 1500.0f // [px/s^2]

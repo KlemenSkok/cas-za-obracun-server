@@ -9,14 +9,16 @@
 #include <vector>
 #include <SDL2/SDL_stdinc.h>
 
+
 enum class PacketType: uint8_t {
     // client->server
-    PLAYER_UPDATES,         // client->server: movement keys states updates
+    PLAYER_UPDATES, // packet sent from client to update movement keys states. a single PlayerKeyStates
     // ...
 
     // server->client
-    PLAYERS_IN_RANGE,       // server->client: info about other players (and self) that are sent periodically
-    GAME_STATE              // server->client: game state, score, time remaining etc.
+    PLAYERS_IN_RANGE, // info about other players (and self) that are sent periodically. a list of PlayerData
+    GAME_STATE // game state, score, time remaining etc.
+    // ...
 };
 
 
@@ -33,6 +35,14 @@ namespace data_packets {
         void serialize(PacketData&) const;
         void deserialize(PacketData&, size_t);
         PlayerData();
+    };
+
+    struct PlayerKeyStates {
+        uint8_t keyStates = 0;
+    
+        static int size();
+        void serialize(PacketData&) const;
+        void deserialize(PacketData&, size_t);
     };
 
 }

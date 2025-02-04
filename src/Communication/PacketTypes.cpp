@@ -50,3 +50,19 @@ void PlayerData::deserialize(PacketData& packet, size_t offset) {
     packet.getByOffset(direction, sizeof(float), offset);
     offset += sizeof(float);
 }
+
+
+
+// PlayerKeyStates
+
+int PlayerKeyStates::size() {
+    return sizeof(uint8_t);
+}
+
+void PlayerKeyStates::serialize(PacketData& packet) const {
+    packet.append(keyStates);
+}
+
+void PlayerKeyStates::deserialize(PacketData& packet, size_t offset) {
+    packet.getByOffset(keyStates, sizeof(uint8_t), offset);
+}

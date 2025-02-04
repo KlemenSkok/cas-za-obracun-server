@@ -24,5 +24,5 @@ public:
     ~Player() = default;
 
     data_packets::PlayerData dumpMovement(); // dump all data necessary for player movement
-    void importChanges(data_packets::PlayerData);
+    void importKeyStates(data_packets::PlayerKeyStates);
 };
