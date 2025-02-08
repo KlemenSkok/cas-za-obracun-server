@@ -4,7 +4,7 @@
 #pragma once
 
 
-#define SERVER_TICK_RATE 30 // [Hz]
+#define SERVER_TICK_RATE 60 // [Hz]
 #define SESSION_UPDATE_DELAY 1000 / SERVER_TICK_RATE // [ms]
 
 

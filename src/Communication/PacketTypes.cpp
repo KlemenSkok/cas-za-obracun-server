@@ -11,12 +11,18 @@ using namespace data_packets;
 int PlayerData::size() {
     constexpr int size = (sizeof(uint16_t) +    // id
                           sizeof(uint8_t) +     // keyStates
-                          5 * sizeof(float));   // position + velocity + direction
+                          5 * sizeof(float)) +  // position + velocity + direction
+                          sizeof(Uint32);       // server timestamp
     return size;
 }
 
 PlayerData::PlayerData() 
-    : id(0), position{0.0f, 0.0f}, velocity{0.0f, 0.0f}, keyStates(0), direction(0.0f) {}
+    : id(0), 
+    position{0.0f, 0.0f}, 
+    velocity{0.0f, 0.0f}, 
+    keyStates(0), 
+    direction(0.0f), 
+    timestamp(SDL_GetTicks()) {}
 
 
 
@@ -29,6 +35,7 @@ void PlayerData::serialize(PacketData& packet) const {
     packet.append(velocity.y);
     packet.append(keyStates);
     packet.append(direction);
+    packet.append(timestamp);
 }
 
 void PlayerData::deserialize(PacketData& packet, size_t offset) {
@@ -49,6 +56,25 @@ void PlayerData::deserialize(PacketData& packet, size_t offset) {
     // direction
     packet.getByOffset(direction, sizeof(float), offset);
     offset += sizeof(float);
+    // timestamp
+    packet.getByOffset(timestamp, sizeof(Uint32), offset);
+    offset += sizeof(Uint32);
+}
+
+PlayerData& PlayerData::operator=(const PlayerData& other) {
+    if(this == &other)
+        return *this;
+
+    this->id = other.id;
+    this->position.x = other.position.x;
+    this->position.y = other.position.y;
+    this->velocity.x = other.velocity.x;
+    this->velocity.y = other.velocity.y;
+    this->keyStates = other.keyStates;
+    this->direction = other.direction;
+    this->timestamp = other.timestamp;
+
+    return *this;
 }
 
 

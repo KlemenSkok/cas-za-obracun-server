@@ -31,9 +31,12 @@ namespace data_packets {
         uint8_t keyStates;
         float direction;
 
+        Uint32 timestamp; // server timestamp for client side interpolation
+
         static int size();
         void serialize(PacketData&) const;
         void deserialize(PacketData&, size_t);
+        PlayerData& operator=(const PlayerData&);
         PlayerData();
     };
 
