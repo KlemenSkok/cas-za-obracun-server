@@ -18,12 +18,14 @@
 //                KEY STATES               //
 // --------------------------------------- //
 
-// w,a,s,d key states
+// w,a,s,d key states + left mouse button and interaction button
 typedef struct {
     uint8_t w = 0, 
             a = 0, 
             s = 0, 
-            d = 0;
+            d = 0,
+            left_click = 0,
+            use_button = 0;
 } KeyStates;
 uint8_t encodeKeyStates(const KeyStates& ks);
 void decodeKeyStates(const uint8_t& data, KeyStates& ks);

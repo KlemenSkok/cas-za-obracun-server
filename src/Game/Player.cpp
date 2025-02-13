@@ -24,8 +24,15 @@ data_packets::PlayerData Player::dumpMovement() {
     return data;
 }
 
-void Player::importKeyStates(data_packets::PlayerKeyStates data) {
+void Player::importUpdates(data_packets::PlayerKeyStates data, float direction) {
+
+    if((data.keyStates & 0b00100000) && !this->keyStates.left_click && (SDL_GetTicks() - this->lastProjectileTime > PROJECTILE_THROW_COOLDOWN)) {
+        this->lastProjectileTime = SDL_GetTicks();
+        std::cout << "Player threw a projectile!\n";
+    }
+
     decodeKeyStates(data.keyStates, this->keyStates);
+    this->direction = direction;
 
     // reset acceleration
     this->acceleration.x = 0.0f;

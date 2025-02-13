@@ -35,6 +35,10 @@
 #define OFFSET_DATA 9
 
 
+// GAMEPLAY CONSTANTS
+
 #define PLAYER_MAX_SPEED 200.0f // [px/s]
 #define PLAYER_ACCELERATION 1200.0f // [px/s^2]
 #define PLAYER_FRICTION 1500.0f // [px/s^2]
+
+#define PROJECTILE_THROW_COOLDOWN 1500 // [ms]

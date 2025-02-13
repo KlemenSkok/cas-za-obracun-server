@@ -20,7 +20,7 @@ public:
     
     KeyStates keyStates;
     float direction;
-
+    Uint32 lastProjectileTime; // timestamp of last projectile throw (for cooldown)
 
     Player(uint16_t id) : id(id) {
         position.x = position.y = 0.0f;
@@ -32,5 +32,5 @@ public:
     void update(float deltaTime);
 
     data_packets::PlayerData dumpMovement(); // dump all data necessary for player movement
-    void importKeyStates(data_packets::PlayerKeyStates);
+    void importUpdates(data_packets::PlayerKeyStates, float);
 };

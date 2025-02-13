@@ -9,19 +9,22 @@
 
 uint8_t encodeKeyStates(const KeyStates& ks) {
     uint8_t data = 0;
-    data |= (ks.w) ? 0b1000 : 0;
-    data |= (ks.a) ? 0b0100 : 0;
-    data |= (ks.s) ? 0b0010 : 0;
-    data |= (ks.d) ? 0b0001 : 0;
+    data |= (ks.left_click) ? 0b00100000 : 0;
+    data |= (ks.use_button) ? 0b00010000 : 0;
+    data |= (ks.w)          ? 0b00001000 : 0;
+    data |= (ks.a)          ? 0b00000100 : 0;
+    data |= (ks.s)          ? 0b00000010 : 0;
+    data |= (ks.d)          ? 0b00000001 : 0;
     return data;
 }
 void decodeKeyStates(const uint8_t& data, KeyStates& ks) {
-    ks.w = (data & 0b1000) ? 1 : 0;
-    ks.a = (data & 0b0100) ? 1 : 0;
-    ks.s = (data & 0b0010) ? 1 : 0;
-    ks.d = (data & 0b0001) ? 1 : 0;
+    ks.left_click = (data & 0b00100000) ? 1 : 0;
+    ks.use_button = (data & 0b00010000) ? 1 : 0;
+    ks.w =          (data & 0b00001000) ? 1 : 0;
+    ks.a =          (data & 0b00000100) ? 1 : 0;
+    ks.s =          (data & 0b00000010) ? 1 : 0;
+    ks.d =          (data & 0b00000001) ? 1 : 0;
 }
-
 // -------------------------------------------------//
 //                                                  //
 //                  UDP MESSAGE                     //

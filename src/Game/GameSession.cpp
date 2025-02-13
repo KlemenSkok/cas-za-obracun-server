@@ -131,11 +131,13 @@ void GameSession::processPlayerUpdates(PacketData data) {
     using namespace data_packets;
     PlayerKeyStates pks;
     uint16_t c_id;
+    float direction;
+
     data.getByOffset(c_id, sizeof(uint16_t), OFFSET_CLIENT_ID);
-
     pks.deserialize(data, OFFSET_DATA);
-    players[c_id]->importKeyStates(pks);
-
+    data.getByOffset(direction, sizeof(float), OFFSET_DATA + PlayerKeyStates::size());
+    
+    players[c_id]->importUpdates(pks, direction);
 }
 
 void GameSession::manageSession() {
