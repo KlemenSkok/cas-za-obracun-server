@@ -12,9 +12,14 @@ Projectile::Projectile(float x, float y, float angle) {
     static uint16_t id_counter = 0;
     this->id = id_counter++;
 
+    // convert angle back to radians
+    constexpr float multiplier = M_PI / 180.0f;
+    angle *= multiplier;
+
     this->position = { x, y };
-    this->velocity.x = cosf(angle) * PROJECTILE_VELOCITY;
-    this->velocity.y = sinf(angle) * PROJECTILE_VELOCITY;
+    this->velocity.x = -cosf(angle) * PROJECTILE_VELOCITY;
+    this->velocity.y = -sinf(angle) * PROJECTILE_VELOCITY;
+
 }
 
 void Projectile::update(float deltaTime) {

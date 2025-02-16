@@ -31,12 +31,10 @@ void Player::importUpdates(data_packets::PlayerKeyStates data, float direction) 
         
         // trigger a projectile deployment (done by GameSession)
         this->projectileTriggered = true;
-        std::cout << "Player threw a projectile!\n";
     }
 
     decodeKeyStates(data.keyStates, this->keyStates);
     this->direction = direction;
-
     // reset acceleration
     this->acceleration.x = 0.0f;
     this->acceleration.y = 0.0f;

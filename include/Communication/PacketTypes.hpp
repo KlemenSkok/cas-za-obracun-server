@@ -41,6 +41,7 @@ namespace data_packets {
         PlayerData& operator=(const PlayerData&);
         PlayerData();
     };
+
     // keystate data of clients sent to server
     struct PlayerKeyStates {
         uint8_t keyStates = 0;
@@ -49,15 +50,19 @@ namespace data_packets {
         void serialize(PacketData&) const;
         void deserialize(PacketData&, size_t);
     };
+
     // data for client side projectile rendering
     struct ProjectileData {
         uint16_t id;
         struct { float x, y; } position;
         struct { float x, y; } velocity;
 
+        Uint32 timestamp; // server timestamp for client side interpolation
+
         static int size();
         void serialize(PacketData&) const;
         void deserialize(PacketData&, size_t);
+        ProjectileData& operator=(const ProjectileData&);
+        ProjectileData();
     };
-
 }
