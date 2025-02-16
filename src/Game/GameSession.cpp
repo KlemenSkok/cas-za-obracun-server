@@ -143,7 +143,7 @@ void GameSession::processPlayerUpdates(PacketData data) {
     // check if the player shot a projectile
     if(p->shotProjectile()) {
         std::shared_ptr<Projectile> pr = std::make_shared<Projectile>(p->position.x, p->position.y, p->direction);
-        this->projectiles.push_back(pr);
+        this->projectiles[pr->get_id()] = pr;
     }
 }
 
@@ -163,12 +163,16 @@ void GameSession::manageSession() {
 
 
     // update everithing (using deltaTime)
-    // check for collisions
+    // todo: check for collisions
     for(auto& p : players) {
         p.second->update(deltaTime / 1000.0f);
     }
-    for(auto& pr : projectiles) {
-        pr->update(deltaTime / 1000.0f);
+    for(auto it = projectiles.begin(); it != projectiles.end();) {
+        it->second->update(deltaTime / 1000.0f);
+        if(it->second->isOutOfRange()) {
+            it = projectiles.erase(it);
+        }
+        else it++;
     }
 
     // send out data to players
@@ -184,7 +188,6 @@ void GameSession::sendGameUpdatesToClient(uint16_t c_id) {
     GameSession::sendPlayerStatesToClient(c_id);
     GameSession::sendProjectileStatesToClient(c_id);
     // ! todo
-    // append data about other objects (like projectiles)
     
 
 }
@@ -228,7 +231,7 @@ void GameSession::sendProjectileStatesToClient(uint16_t c_id) {
     d.append((uint8_t)PacketType::PROJECTILES_IN_RANGE);// 1 B
 
     for(auto& pr : projectiles) {
-        pr->dumpData().serialize(d);
+        pr.second->dumpData().serialize(d);
     }
 
     std::unique_ptr<UDPmessage> msg = std::make_unique<UDPmessage>();

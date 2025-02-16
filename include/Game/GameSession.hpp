@@ -22,7 +22,7 @@ class GameSession {
 private:
     std::unordered_map<uint16_t, std::shared_ptr<Client>> clients;
     std::unordered_map<uint16_t, std::shared_ptr<Player>> players;
-    std::vector<std::shared_ptr<Projectile>> projectiles;
+    std::unordered_map<uint16_t, std::shared_ptr<Projectile>> projectiles;
 
     uint8_t id;
 

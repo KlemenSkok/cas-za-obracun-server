@@ -7,6 +7,11 @@
 #include <cmath>
 
 
+uint16_t Projectile::get_id() {
+    return this->id;
+}
+
+
 Projectile::Projectile(float x, float y, float angle) {
 
     static uint16_t id_counter = 0;
@@ -17,6 +22,7 @@ Projectile::Projectile(float x, float y, float angle) {
     angle *= multiplier;
 
     this->position = { x, y };
+    this->start = { x, y };
     this->velocity.x = -cosf(angle) * PROJECTILE_VELOCITY;
     this->velocity.y = -sinf(angle) * PROJECTILE_VELOCITY;
 
@@ -39,4 +45,13 @@ data_packets::ProjectileData Projectile::dumpData() {
     data.velocity.y = this->velocity.y;
 
     return data;
+}
+
+bool Projectile::isOutOfRange() {
+    int dx = start.x - position.x;
+    int dy = start.y - position.y;
+    if((dx*dx + dy*dy) > PROJECTILE_RANGE) {
+        return true;
+    }
+    return false;
 }

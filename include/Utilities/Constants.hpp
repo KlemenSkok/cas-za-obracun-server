@@ -41,5 +41,6 @@
 #define PLAYER_ACCELERATION 1200.0f // [px/s^2]
 #define PLAYER_FRICTION 1500.0f // [px/s^2]
 
-#define PROJECTILE_THROW_COOLDOWN 1500 // [ms]
+#define PROJECTILE_THROW_COOLDOWN 1000 // [ms]
 #define PROJECTILE_VELOCITY 500.0f
+#define PROJECTILE_RANGE 1770*1770 // 2500 px in any direction
