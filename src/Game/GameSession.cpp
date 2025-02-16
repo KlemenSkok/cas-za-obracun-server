@@ -137,9 +137,19 @@ void GameSession::processPlayerUpdates(PacketData data) {
     pks.deserialize(data, OFFSET_DATA);
     data.getByOffset(direction, sizeof(float), OFFSET_DATA + PlayerKeyStates::size());
     
-    players[c_id]->importUpdates(pks, direction);
+    auto p = players[c_id];
+    p->importUpdates(pks, direction);
+
+    // check if the player shot a projectile
+    if(p->shotProjectile()) {
+        std::shared_ptr<Projectile> pr = std::make_shared<Projectile>(p->position.x, p->position.y, p->direction);
+        this->projectiles.push_back(pr);
+    }
 }
 
+/**
+ * @brief GameSession main loop.
+ */
 void GameSession::manageSession() {
     // update the session, check for collisions etc.
     // main loop for sessions
@@ -157,6 +167,9 @@ void GameSession::manageSession() {
     for(auto& p : players) {
         p.second->update(deltaTime / 1000.0f);
     }
+    for(auto& pr : projectiles) {
+        pr->update(deltaTime / 1000.0f);
+    }
 
     // send out data to players
     for(auto& p : players) {
@@ -169,9 +182,10 @@ void GameSession::sendGameUpdatesToClient(uint16_t c_id) {
     
     // send data about states for players 
     GameSession::sendPlayerStatesToClient(c_id);
-
+    GameSession::sendProjectileStatesToClient(c_id);
     // ! todo
     // append data about other objects (like projectiles)
+    
 
 }
 
@@ -202,5 +216,28 @@ void GameSession::sendPlayerStatesToClient(uint16_t c_id) {
     GameSession::pending_msgs.push_back(std::move(msg));
 
     // expected packet size: 36 B (+ 27 B for each added player)
+
+}
+
+void GameSession::sendProjectileStatesToClient(uint16_t c_id) {
+    PacketData d(true);
+    d.flags() |= (1 << FLAG_DATA);                      // 1 B
+    d.append(this->id);                                 // 1 B
+    d.append(c_id);                                     // 2 B
+    d.append(clients[c_id]->getLastSentPacketID());     // 4 B
+    d.append((uint8_t)PacketType::PROJECTILES_IN_RANGE);// 1 B
+
+    for(auto& pr : projectiles) {
+        pr->dumpData().serialize(d);
+    }
+
+    std::unique_ptr<UDPmessage> msg = std::make_unique<UDPmessage>();
+    msg->ip = std::make_unique<IPaddress>(clients[c_id]->get_ip());
+    msg->data = d.getRawData();
+    msg->len = d.size();
+
+    GameSession::pending_msgs.push_back(std::move(msg));
+
+    // expected packet size: 9 B (+ 18 B for each projectile)
 
 }

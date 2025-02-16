@@ -13,6 +13,7 @@
 #include "Player.hpp"
 #include "Logging/Logger.hpp"
 #include "Containers.hpp"
+#include "Projectile.hpp"
 
 #define MAX_PLAYERS 4 // per session
 
@@ -21,6 +22,8 @@ class GameSession {
 private:
     std::unordered_map<uint16_t, std::shared_ptr<Client>> clients;
     std::unordered_map<uint16_t, std::shared_ptr<Player>> players;
+    std::vector<std::shared_ptr<Projectile>> projectiles;
+
     uint8_t id;
 
     Uint32 lastUpdate;
@@ -54,8 +57,9 @@ public:
     void manageSession();
     std::vector<uint16_t> checkClientInactivity();
 
-    void sendGameUpdatesToClient(uint16_t c_id); // 
+    void sendGameUpdatesToClient(uint16_t c_id);
     void sendPlayerStatesToClient(uint16_t c_id);
+    void sendProjectileStatesToClient(uint16_t c_id);
 
     void Stop(UDPsocket);
 

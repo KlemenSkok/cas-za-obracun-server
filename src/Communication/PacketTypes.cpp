@@ -92,3 +92,33 @@ void PlayerKeyStates::serialize(PacketData& packet) const {
 void PlayerKeyStates::deserialize(PacketData& packet, size_t offset) {
     packet.getByOffset(keyStates, sizeof(uint8_t), offset);
 }
+
+// ProjectileData
+
+int ProjectileData::size() {
+    constexpr int size = sizeof(uint16_t)
+                        + sizeof(float) * 4;
+    return size;
+}
+
+void ProjectileData::serialize(PacketData& packet) const {
+    packet.append(id);
+    packet.append(position.x);
+    packet.append(position.y);
+    packet.append(velocity.x);
+    packet.append(velocity.y);
+}
+
+void ProjectileData::deserialize(PacketData& packet, size_t offset) {
+    // id
+    packet.getByOffset(id, sizeof(uint16_t), offset);
+    offset += sizeof(uint16_t);
+    // position
+    packet.getByOffset(position.x, sizeof(float), offset);
+    packet.getByOffset(position.y, sizeof(float), offset + sizeof(float));
+    offset += sizeof(float) * 2;
+    // velocity
+    packet.getByOffset(velocity.x, sizeof(float), offset);
+    packet.getByOffset(velocity.y, sizeof(float), offset + sizeof(float));
+    offset += sizeof(float) * 2;
+}

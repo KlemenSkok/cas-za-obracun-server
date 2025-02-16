@@ -28,6 +28,9 @@ void Player::importUpdates(data_packets::PlayerKeyStates data, float direction) 
 
     if((data.keyStates & 0b00100000) && !this->keyStates.left_click && (SDL_GetTicks() - this->lastProjectileTime > PROJECTILE_THROW_COOLDOWN)) {
         this->lastProjectileTime = SDL_GetTicks();
+        
+        // trigger a projectile deployment (done by GameSession)
+        this->projectileTriggered = true;
         std::cout << "Player threw a projectile!\n";
     }
 
@@ -102,4 +105,12 @@ void Player::update(float deltaTime) {
     this->position.x += this->velocity.x * deltaTime;
     this->position.y += this->velocity.y * deltaTime;
 
+}
+
+bool Player::shotProjectile() {
+    if(this->projectileTriggered) {
+        this->projectileTriggered = false;
+        return true;
+    }
+    return false;
 }
