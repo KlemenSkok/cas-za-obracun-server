@@ -257,7 +257,7 @@ void Server::checkClientInactivity() {
 
     if(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - lastCheckTime).count() > INACTIVITY_CHECK_INTERVAL)  {
         for(auto& s : _sessions) {
-            auto inactive_clients = s.second->checkClientInactivity();
+            auto inactive_clients = s.second->getInactiveClients();
             if(!inactive_clients.empty()) {
                 for(auto c_id : inactive_clients) {
                     

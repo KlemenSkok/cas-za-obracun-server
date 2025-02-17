@@ -41,10 +41,20 @@ public:
 
     uint8_t get_id();
 
+    // utility functions
     bool isFull();
     bool acceptsPlayers();
     uint8_t size(); // == number of clients
+    void Stop(UDPsocket);
+    
+    // session main loop
+    void manageSession();
+    // main loop components
+    void updateEverything(float);
+    void checkCollisions();
+    void broadcastUpdates();
 
+    // functions for dealing with clients
     void addClient(uint16_t c_id, IPaddress ip);
     void removeClient(uint16_t c_id);
     bool hasClient(uint16_t c_id);
@@ -52,18 +62,15 @@ public:
     int queryAddress(IPaddress ip);
     IPaddress getClientAddr(uint16_t c_id);
 
+    // functions for packet processing
     void processPacket(PacketData data);
     void processPlayerUpdates(PacketData data);
-    void manageSession();
-    std::vector<uint16_t> checkClientInactivity();
+    std::vector<uint16_t> getInactiveClients();
 
+    // functions for sending out packets
     void sendGameUpdatesToClient(uint16_t c_id);
     void sendPlayerStatesToClient(uint16_t c_id);
     void sendProjectileStatesToClient(uint16_t c_id);
-
-    void Stop(UDPsocket);
-
-
 
 
 };

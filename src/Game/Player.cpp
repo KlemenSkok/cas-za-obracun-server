@@ -5,6 +5,9 @@
 #include "Containers.hpp"
 #include "Utilities/Constants.hpp"
 
+uint16_t Player::get_id() {
+    return this->id;
+}
 
 data_packets::PlayerData Player::dumpMovement() {
     data_packets::PlayerData data;

@@ -29,6 +29,7 @@ public:
         acceleration.x = acceleration.y = 0.0f;
     }
     ~Player() = default;
+    uint16_t get_id();
 
     void update(float deltaTime);
 

@@ -81,7 +81,7 @@ std::weak_ptr<Client> GameSession::getClient(uint16_t c_id) {
  * Checks for inactive clients
  * @return an `std::vector` containing inactive clients' ids (`uint16_t`)
  */
-std::vector<uint16_t> GameSession::checkClientInactivity() {
+std::vector<uint16_t> GameSession::getInactiveClients() {
     std::vector<uint16_t> client_list;
     for(auto& c : clients) {
         if(c.second->checkTimeout()) {
@@ -142,7 +142,7 @@ void GameSession::processPlayerUpdates(PacketData data) {
 
     // check if the player shot a projectile
     if(p->shotProjectile()) {
-        std::shared_ptr<Projectile> pr = std::make_shared<Projectile>(p->position.x, p->position.y, p->direction);
+        std::shared_ptr<Projectile> pr = std::make_shared<Projectile>(p->position.x, p->position.y, p->direction, p->get_id());
         this->projectiles[pr->get_id()] = pr;
     }
 }
@@ -163,22 +163,12 @@ void GameSession::manageSession() {
 
 
     // update everithing (using deltaTime)
-    // todo: check for collisions
-    for(auto& p : players) {
-        p.second->update(deltaTime / 1000.0f);
-    }
-    for(auto it = projectiles.begin(); it != projectiles.end();) {
-        it->second->update(deltaTime / 1000.0f);
-        if(it->second->isOutOfRange()) {
-            it = projectiles.erase(it);
-        }
-        else it++;
-    }
+    this->updateEverything(deltaTime / 1000.0f);
 
-    // send out data to players
-    for(auto& p : players) {
-        GameSession::sendGameUpdatesToClient(p.first);
-    }
+    // todo: check for collisions
+    this->checkCollisions();
+    
+    this->broadcastUpdates();
 
 }
 
@@ -187,8 +177,6 @@ void GameSession::sendGameUpdatesToClient(uint16_t c_id) {
     // send data about states for players 
     GameSession::sendPlayerStatesToClient(c_id);
     GameSession::sendProjectileStatesToClient(c_id);
-    // ! todo
-    
 
 }
 
@@ -243,4 +231,58 @@ void GameSession::sendProjectileStatesToClient(uint16_t c_id) {
 
     // expected packet size: 9 B (+ 18 B for each projectile)
 
+}
+
+//
+// MAIN LOOP COMPONENTS
+//
+
+// sending game state updates to clients
+void GameSession::broadcastUpdates() {
+    // send out data to players
+    for(auto& p : players) {
+        GameSession::sendGameUpdatesToClient(p.first);
+    }
+}
+
+/**
+ * @brief Updating the game state
+ * @param deltaTime Time difference in `ms`
+ */
+void GameSession::updateEverything(float deltaTime) {
+    // update players
+    for(auto& p : players) {
+        p.second->update(deltaTime);
+    }
+
+    // update projeciles
+    for(auto it = projectiles.begin(); it != projectiles.end();  ) {
+        it->second->update(deltaTime);
+        if(it->second->isOutOfRange()) {
+            it = projectiles.erase(it);
+        }
+        else it++;
+    }
+
+}
+
+// Checking for collisions
+void GameSession::checkCollisions() {
+
+    // first check for any projectile hits
+    for(auto& p : this->players) {
+        for(auto it = this->projectiles.begin(); it != this->projectiles.end();  ) {
+            int dx = it->second->position.x - p.second->position.x;
+            int dy = it->second->position.y - p.second->position.y;
+            if(it->second->get_parent_id() != p.second->get_id() && (dx*dx + dy*dy) < (PLAYER_RADIUS*PLAYER_RADIUS + PROJECTILE_RADIUS*PROJECTILE_RADIUS)) {
+                // destroy the projectile
+                it = this->projectiles.erase(it);
+                // todo: deal posture damage to player
+            }
+            else ++it;
+        }
+    }
+
+
+    // todo: check for collisions with stationary objects (players AND projectiles)
 }

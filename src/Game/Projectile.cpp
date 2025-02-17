@@ -11,11 +11,15 @@ uint16_t Projectile::get_id() {
     return this->id;
 }
 
+uint16_t Projectile::get_parent_id() {
+    return this->parent_id;
+}
 
-Projectile::Projectile(float x, float y, float angle) {
+Projectile::Projectile(float x, float y, float angle, uint16_t parent_id) {
 
     static uint16_t id_counter = 0;
     this->id = id_counter++;
+    this->parent_id = parent_id;
 
     // convert angle back to radians
     constexpr float multiplier = M_PI / 180.0f;
