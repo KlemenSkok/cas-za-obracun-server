@@ -106,6 +106,13 @@ void Player::update(float deltaTime) {
     this->position.x += this->velocity.x * deltaTime;
     this->position.y += this->velocity.y * deltaTime;
 
+
+
+    // TODO: UPDATE POSTURE
+    // raise and event on posture break
+    // moves slower when posture == 0
+    // starts healing within 3s after last hit (when posture < 100)
+
 }
 
 bool Player::shotProjectile() {
@@ -114,4 +121,14 @@ bool Player::shotProjectile() {
         return true;
     }
     return false;
+}
+
+void Player::dealPostureDamage() {
+    this->posture -= PROJECTILE_POSTURE_DAMAGE;
+    if(this->posture <= 0) {
+        this->posture = 0;
+        this->isConcussed = true;
+    }
+
+    this->lastDamageTime = SDL_GetTicks();
 }
