@@ -37,11 +37,20 @@
 
 // GAMEPLAY CONSTANTS
 
+// -- PLAYERS -- //
+// size
 #define PLAYER_RADIUS 20 // px
+// movement
 #define PLAYER_MAX_SPEED 200.0f // [px/s]
+#define PLAYER_MAX_SPEED_SLOWED 75.0f
 #define PLAYER_ACCELERATION 1200.0f // [px/s^2]
 #define PLAYER_FRICTION 1500.0f // [px/s^2]
+// healing
+#define PLAYER_HEAL_AMOUNT 12 // posture pts/tick
+#define PLAYER_HEAL_DELAY 5000 // on posture broken, wait 3s before healing
+#define PLAYER_HEAL_PERIOD 1000 // once healing, only heal every .5s
 
+// -- PROJECTILES -- //
 #define PROJECTILE_RADIUS 10 // px
 #define PROJECTILE_THROW_COOLDOWN 1000 // [ms]
 #define PROJECTILE_VELOCITY 500.0f

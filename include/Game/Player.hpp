@@ -17,6 +17,7 @@ class Player {
     int8_t posture;
     // Timestamp of last time when damage was taken. Used for healing timing
     Uint32 lastDamageTime;
+    Uint32 lastHealTime;
     // Concussion occours on posture break. It lasts until posture equals 0
     bool isConcussed;
 
@@ -34,7 +35,8 @@ public:
         position.x = position.y = 0.0f;
         velocity.x = velocity.y = 0.0f;
         acceleration.x = acceleration.y = 0.0f;
-        lastDamageTime = SDL_GetTicks();
+        lastDamageTime = lastHealTime = SDL_GetTicks();
+        posture = 100;
     }
     ~Player() = default;
     uint16_t get_id();

@@ -278,6 +278,7 @@ void GameSession::checkCollisions() {
                 // destroy the projectile
                 it = this->projectiles.erase(it);
                 // todo: deal posture damage to player
+                p.second->dealPostureDamage();
             }
             else ++it;
         }

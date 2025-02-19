@@ -51,6 +51,30 @@ void Player::importUpdates(data_packets::PlayerKeyStates data, float direction) 
 }
 
 void Player::update(float deltaTime) {
+
+    // TODO: UPDATE POSTURE
+    // raise and event on posture break
+    // moves slower when posture == 0
+    // starts healing within 3s after last hit (when posture < 100)
+    if(this->posture < 100 && (SDL_GetTicks() - this->lastDamageTime > PLAYER_HEAL_DELAY)) {
+        if(this->posture == 0) {
+            this->posture += PLAYER_HEAL_AMOUNT; // per tick
+            this->lastHealTime = SDL_GetTicks();
+            std::cout << "healed: " << (int)this->posture << '\n';
+        }
+        else if(SDL_GetTicks() - this->lastHealTime > PLAYER_HEAL_PERIOD) {
+            this->posture += PLAYER_HEAL_AMOUNT;
+            this->lastHealTime = SDL_GetTicks();
+            if(this->posture > 100) {
+                this->posture = 100;
+            }
+            std::cout << "healed: " << (int)this->posture << '\n';
+        }
+    }
+    
+
+
+
     // update the player position
     this->velocity.x += this->acceleration.x * deltaTime;
     this->velocity.y += this->acceleration.y * deltaTime;
@@ -78,40 +102,37 @@ void Player::update(float deltaTime) {
         }
     }
 
+    // determine speed limit (players are slower when concussed)
+    float speed_cap = (this->posture > 0) ? PLAYER_MAX_SPEED : PLAYER_MAX_SPEED_SLOWED;
+
     // clamp velocity
-    if(this->velocity.x > PLAYER_MAX_SPEED) this->velocity.x = PLAYER_MAX_SPEED;
-    if(this->velocity.x < -PLAYER_MAX_SPEED) this->velocity.x = -PLAYER_MAX_SPEED;
-    if(this->velocity.y > PLAYER_MAX_SPEED) this->velocity.y = PLAYER_MAX_SPEED;
-    if(this->velocity.y < -PLAYER_MAX_SPEED) this->velocity.y = -PLAYER_MAX_SPEED;
+    if(this->velocity.x > speed_cap) this->velocity.x = speed_cap;
+    if(this->velocity.x < -speed_cap) this->velocity.x = -speed_cap;
+    if(this->velocity.y > speed_cap) this->velocity.y = speed_cap;
+    if(this->velocity.y < -speed_cap) this->velocity.y = -speed_cap;
 
     // normalize diagonal velocity
-    if(this->velocity.x == PLAYER_MAX_SPEED && this->velocity.y == PLAYER_MAX_SPEED) {
-        this->velocity.x = PLAYER_MAX_SPEED / 1.4142f;
-        this->velocity.y = PLAYER_MAX_SPEED / 1.4142f;
+    if(this->velocity.x == speed_cap && this->velocity.y == speed_cap) {
+        this->velocity.x = speed_cap / 1.4142f;
+        this->velocity.y = speed_cap / 1.4142f;
     }
-    if(this->velocity.x == -PLAYER_MAX_SPEED && this->velocity.y == PLAYER_MAX_SPEED) {
-        this->velocity.x = -PLAYER_MAX_SPEED / 1.4142f;
-        this->velocity.y = PLAYER_MAX_SPEED / 1.4142f;
+    if(this->velocity.x == -speed_cap && this->velocity.y == speed_cap) {
+        this->velocity.x = -speed_cap / 1.4142f;
+        this->velocity.y = speed_cap / 1.4142f;
     }
-    if(this->velocity.x == PLAYER_MAX_SPEED && this->velocity.y == -PLAYER_MAX_SPEED) {
-        this->velocity.x = PLAYER_MAX_SPEED / 1.4142f;
-        this->velocity.y = -PLAYER_MAX_SPEED / 1.4142f;
+    if(this->velocity.x == speed_cap && this->velocity.y == -speed_cap) {
+        this->velocity.x = speed_cap / 1.4142f;
+        this->velocity.y = -speed_cap / 1.4142f;
     }
-    if(this->velocity.x == -PLAYER_MAX_SPEED && this->velocity.y == -PLAYER_MAX_SPEED) {
-        this->velocity.x = -PLAYER_MAX_SPEED / 1.4142f;
-        this->velocity.y = -PLAYER_MAX_SPEED / 1.4142f;
+    if(this->velocity.x == -speed_cap && this->velocity.y == -speed_cap) {
+        this->velocity.x = -speed_cap / 1.4142f;
+        this->velocity.y = -speed_cap / 1.4142f;
     }
 
     // update position
     this->position.x += this->velocity.x * deltaTime;
     this->position.y += this->velocity.y * deltaTime;
 
-
-
-    // TODO: UPDATE POSTURE
-    // raise and event on posture break
-    // moves slower when posture == 0
-    // starts healing within 3s after last hit (when posture < 100)
 
 }
 
@@ -128,7 +149,11 @@ void Player::dealPostureDamage() {
     if(this->posture <= 0) {
         this->posture = 0;
         this->isConcussed = true;
+
+        // flag dropped
+        std::cout << "player concussed.\n";
     }
 
+    std::cout << "posture damaged: " << (int)this->posture << '\n';
     this->lastDamageTime = SDL_GetTicks();
 }
