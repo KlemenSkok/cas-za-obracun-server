@@ -28,6 +28,7 @@ namespace data_packets {
     // all data neccesary for clients to render players
     struct PlayerData {
         uint16_t id;
+        int8_t posture;
         struct { float x, y; } position;
         struct { float x, y; } velocity;
         uint8_t keyStates;

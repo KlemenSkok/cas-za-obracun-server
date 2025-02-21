@@ -13,6 +13,8 @@ data_packets::PlayerData Player::dumpMovement() {
     data_packets::PlayerData data;
 
     data.id = this->id;
+    // posture
+    data.posture = this->posture;
     // position
     data.position.x = this->position.x;
     data.position.y = this->position.y;

@@ -10,6 +10,7 @@ using namespace data_packets;
 
 int PlayerData::size() {
     constexpr int size = (sizeof(uint16_t) +    // id
+                          sizeof(int8_t) +      // posture
                           sizeof(uint8_t) +     // keyStates
                           5 * sizeof(float)) +  // position + velocity + direction
                           sizeof(Uint32);       // server timestamp
@@ -18,6 +19,7 @@ int PlayerData::size() {
 
 PlayerData::PlayerData() 
     : id(0), 
+    posture(0),
     position{0.0f, 0.0f}, 
     velocity{0.0f, 0.0f}, 
     keyStates(0), 
@@ -29,6 +31,7 @@ PlayerData::PlayerData()
 // Member function definition
 void PlayerData::serialize(PacketData& packet) const {
     packet.append(id);
+    packet.append(posture);
     packet.append(position.x);
     packet.append(position.y);
     packet.append(velocity.x);
@@ -42,6 +45,9 @@ void PlayerData::deserialize(PacketData& packet, size_t offset) {
     // id
     packet.getByOffset(id, sizeof(uint16_t), offset);
     offset += sizeof(uint16_t);
+    // posture
+    packet.getByOffset(posture, sizeof(int8_t), offset);
+    offset += sizeof(int8_t);
     // position
     packet.getByOffset(position.x, sizeof(float), offset);
     packet.getByOffset(position.y, sizeof(float), offset + sizeof(float));
@@ -66,6 +72,7 @@ PlayerData& PlayerData::operator=(const PlayerData& other) {
         return *this;
 
     this->id = other.id;
+    this->posture = other.posture;
     this->position.x = other.position.x;
     this->position.y = other.position.y;
     this->velocity.x = other.velocity.x;

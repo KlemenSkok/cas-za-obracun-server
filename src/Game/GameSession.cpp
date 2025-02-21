@@ -190,12 +190,12 @@ void GameSession::sendPlayerStatesToClient(uint16_t c_id) {
     d.append((uint8_t)PacketType::PLAYERS_IN_RANGE);    // 1 B
 
     // the target player is always first
-    players[c_id]->dumpMovement().serialize(d);         // 27 B
+    players[c_id]->dumpMovement().serialize(d);         // 28 B
     
     // append other players
     for (auto& p : players) {
         if(p.first != c_id) {
-            p.second->dumpMovement().serialize(d);      // 27 B (each player)
+            p.second->dumpMovement().serialize(d);      // 28 B (each player)
         }
     }
     
@@ -206,7 +206,7 @@ void GameSession::sendPlayerStatesToClient(uint16_t c_id) {
 
     GameSession::pending_msgs.push_back(std::move(msg));
 
-    // expected packet size: 36 B (+ 27 B for each added player)
+    // expected packet size: 37 B (+ 28 B for each added player)
 
 }
 
