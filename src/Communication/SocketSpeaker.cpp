@@ -78,6 +78,7 @@ void SocketSpeaker::Start(uint16_t port) {
     SocketSpeaker::socket = socket;
 
     SocketSpeaker::worker = std::make_unique<std::thread>(&SocketSpeaker::Speak, socket);
+    SocketSpeaker::worker->detach(); // detach, da ne caka na join pri zapiranju
 }
 
 // stop and close thread
@@ -85,12 +86,8 @@ void SocketSpeaker::Stop() noexcept {
     SocketSpeaker::_running = false;
     SocketSpeaker::_shutdown = true;
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    while(SocketSpeaker::_shutdown);
 
-    if(SocketSpeaker::worker && SocketSpeaker::worker->joinable()) {
-        Logger::info("Waiting for socket speaker to close...");
-        SocketSpeaker::worker->join();
-    }
     Logger::info("Socket speaker closed.");
 }
 
@@ -159,6 +156,8 @@ void SocketSpeaker::Speak(UDPsocket socket) noexcept {
     // cleannup
     SDLNet_FreePacket(packet);
     SDLNet_UDP_Close(socket);
+
+    SocketSpeaker::_shutdown = false;
 }
 
 // return socket, so the clients can be bound to it

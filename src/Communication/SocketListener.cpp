@@ -57,6 +57,7 @@ void SocketListener::Start(uint16_t port) {
     SocketListener::socket = socket;
 
     SocketListener::worker = std::make_unique<std::thread>(&SocketListener::Listen, socket);
+    SocketListener::worker->detach(); // detach, da ne caka na join pri zapiranju
 }
 
 // stop and close thread
@@ -64,12 +65,8 @@ void SocketListener::Stop() noexcept {
     SocketListener::_running = false;
     SocketListener::_shutdown = true;
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    while(SocketListener::_shutdown); // wait to shut down
 
-    if(SocketListener::worker && SocketListener::worker->joinable()) {
-        Logger::info("Waiting for socket listener to close...");
-        SocketListener::worker->join();
-    }
     Logger::info("Socket listener closed.");
 }
 
@@ -117,9 +114,11 @@ void SocketListener::Listen(UDPsocket socket) noexcept {
         std::this_thread::sleep_for(std::chrono::microseconds(LOOP_DELAY));
     }
 
-    // cleannup
+    // cleanup
     SDLNet_FreePacket(packet);
     SDLNet_UDP_Close(socket);
+
+    SocketListener::_shutdown = false;
 }
 
 
