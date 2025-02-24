@@ -2,8 +2,10 @@
 // Player.cpp
 
 #include "Game/Player.hpp"
+#include "Game/Map/MapData.hpp"
 #include "Containers.hpp"
 #include "Utilities/Constants.hpp"
+
 
 uint16_t Player::get_id() {
     return this->id;
@@ -62,7 +64,6 @@ void Player::update(float deltaTime) {
         if(this->posture == 0) {
             this->posture += PLAYER_HEAL_AMOUNT; // per tick
             this->lastHealTime = SDL_GetTicks();
-            std::cout << "healed: " << (int)this->posture << '\n';
         }
         else if(SDL_GetTicks() - this->lastHealTime > PLAYER_HEAL_PERIOD) {
             this->posture += PLAYER_HEAL_AMOUNT;
@@ -70,19 +71,18 @@ void Player::update(float deltaTime) {
             if(this->posture > 100) {
                 this->posture = 100;
             }
-            std::cout << "healed: " << (int)this->posture << '\n';
         }
     }
     
 
-
+    Point newPosition = { this->position.x, this->position.y };
 
     // update the player position
     this->velocity.x += this->acceleration.x * deltaTime;
     this->velocity.y += this->acceleration.y * deltaTime;
 
-    this->position.x += this->velocity.x * deltaTime;
-    this->position.y += this->velocity.y * deltaTime;
+    newPosition.x += this->velocity.x * deltaTime;
+    newPosition.y += this->velocity.y * deltaTime;
 
     // apply friction if no keys are pressed
     if(!this->keyStates.a && !this->keyStates.d) {
@@ -132,9 +132,17 @@ void Player::update(float deltaTime) {
     }
 
     // update position
-    this->position.x += this->velocity.x * deltaTime;
-    this->position.y += this->velocity.y * deltaTime;
+    newPosition.x += this->velocity.x * deltaTime;
+    newPosition.y += this->velocity.y * deltaTime;
 
+    if(MapData::CheckCollision(*this, newPosition)) {
+        // collision detected; update position
+        this->position = newPosition;
+    }
+    else {
+        // no collision; update position
+        this->position = newPosition;
+    }
 
 }
 
@@ -153,9 +161,7 @@ void Player::dealPostureDamage() {
         this->isConcussed = true;
 
         // flag dropped
-        std::cout << "player concussed.\n";
     }
 
-    std::cout << "posture damaged: " << (int)this->posture << '\n';
     this->lastDamageTime = SDL_GetTicks();
 }

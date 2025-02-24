@@ -23,9 +23,9 @@ class Player {
 
 public:
 
-    struct { float x, y; } position;
-    struct { float x, y; } velocity;
-    struct { float x, y; } acceleration;
+    Point position;
+    Point velocity;
+    Point acceleration;
 
     KeyStates keyStates;
     float direction;
@@ -47,4 +47,6 @@ public:
     data_packets::PlayerData dumpMovement(); // dump all data necessary for player movement
     void importUpdates(data_packets::PlayerKeyStates, float);
     bool shotProjectile();
+
+    Point getPosition() const { return position; }
 };

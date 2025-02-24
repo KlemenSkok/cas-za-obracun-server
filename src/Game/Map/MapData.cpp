@@ -1,0 +1,188 @@
+
+// MapData.hpp
+
+#include "XML/tinyxml2.h"
+#include "Game/Map/MapData.hpp"
+#include "Utilities/Constants.hpp"
+
+#include <exception>
+#include <cmath>
+
+
+
+std::unordered_map<uint16_t, std::unordered_map<uint16_t, std::vector<Barrier>>> MapData::grid;
+
+
+void MapData::InitializeGrid() {
+    grid.clear();
+}
+
+void MapData::AddBarrier(Barrier& b) {
+    auto pos = b.getPosition();
+    
+    int start_x = getGridKey(pos.x);
+    int start_y = getGridKey(pos.y);
+    int end_x = getGridKey(pos.x + b.getWidth());
+    int end_y = getGridKey(pos.y + b.getHeight());
+
+    // edge case: when barrier border is on the edge of a cell, expand the object territory
+    if(int(pos.x + b.getWidth()) % GRID_CELL_SIZE == 0) end_x++;
+    if(int(pos.y + b.getHeight()) % GRID_CELL_SIZE == 0) end_y++;
+
+    for(int x = start_x; x < end_x; x++) {
+        for(int y = start_y; y < end_y; y++) {
+            grid[x][y].push_back(b);
+        }
+    }
+}
+
+/**
+ * @brief Read a single barrier node from the XML file
+ * 
+ * @param node The node to read from 
+ * @param b The barrier to write to
+ * @return int  Returns 0 on success, 1 on failure
+ */
+int parseBarrierNode(tinyxml2::XMLNode* node, Barrier& b) {
+    using namespace tinyxml2;
+    
+    Point pos;
+    int w, h, texture_id;
+    int err = 0;
+
+    // parse barrier data
+    // position
+    XMLElement* n = node->FirstChildElement("position");
+    if(n == nullptr) {
+        Logger::warn((std::string("Missing barrier <position> data (line ") + std::to_string(node->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    err = n->QueryFloatAttribute("x", &pos.x);
+    err += n->QueryFloatAttribute("y", &pos.y);
+    if(err != 0) {
+        Logger::warn((std::string("Failed to parse barrier <position> (line ") + std::to_string(n->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    
+    // dimensions
+    n = node->FirstChildElement("size");
+    if(n == nullptr) {
+        Logger::warn((std::string("Missing barrier <size> data (line ") + std::to_string(node->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    err = n->QueryIntAttribute("w", &w);
+    err += n->QueryIntAttribute("h", &h);
+    if(err != 0) {
+        Logger::warn((std::string("Failed to parse barrier <size> (line ") + std::to_string(n->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    
+    // texture
+    n = node->FirstChildElement("texture");
+    if(n == nullptr) {
+        Logger::warn((std::string("Missing barrier <texture> data (line ") + std::to_string(node->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    err = n->QueryIntAttribute("id", &texture_id);
+    if(err != 0) {
+        Logger::warn((std::string("Failed to parse barrier <texture> (line ") + std::to_string(n->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+
+    b.setPosition(pos.x, pos.y);
+    b.setDimensions(w, h);
+    b.setTexture(texture_id);
+
+    return  EXIT_SUCCESS;
+}
+
+/**
+ * @brief Attempt to load map data from an XML file.
+ * 
+ * @param filename Name of the XML file to load.
+ * @return int Returns 0 on success, 1 in failure.
+ */
+int MapData::LoadMap(const char* filename) {
+    //std::cout << "Loading map: " << filename << std::endl;
+    InitializeGrid();
+
+    // use tinyxml2 for parsing
+    using namespace tinyxml2;
+
+
+    XMLDocument doc;
+    if(doc.LoadFile(filename) != 0) {
+        throw std::runtime_error("Failed to load XML file.");
+    }
+
+    XMLNode* root = doc.FirstChildElement("map");
+    if(root == nullptr) {
+        throw std::runtime_error("Failed to find <map> root element.");
+    }
+    
+    // extract map barriers
+    for(XMLNode* node = root->FirstChildElement("barrier"); node != nullptr; node = node->NextSiblingElement("barrier")) {
+        
+        Barrier b;
+        if(parseBarrierNode(node, b) == 0) {
+            AddBarrier(b);
+            //std::cout << "Barrier added: " << b.getPosition().x << ", " << b.getPosition().y << std::endl;
+        }
+
+    }
+
+    return EXIT_SUCCESS;
+}
+
+/**
+ * @brief Check for collision between the player and the map barriers.
+ * 
+ * @param player Player object to check collision for. Used to identify the overload for the LocalPlayer class.
+ * @param correctedPos The position to check for collision. If a collision is detected, this will be updated to the corrected position.
+ * @return `true` if collision was detected, `false` otherwise.
+ */
+bool MapData::CheckCollision(const Player& player, Point& correctedPos) {
+    // player grid position
+    int p_grid_x = getGridKey(correctedPos.x);
+    int p_grid_y = getGridKey(correctedPos.y);
+
+    for(int x = p_grid_x - 1; x <= p_grid_x + 1; x++) {
+        for(int y = p_grid_y - 1; y <= p_grid_y + 1; y++) {
+
+            if(grid.find(x) == grid.end() || grid[x].find(y) == grid[x].end()) {
+                continue; // skip; nothing to check in this cell
+            }
+
+            for(const Barrier& barrier : grid[x][y]) {
+
+                float closestX = std::max(barrier.getPosition().x, 
+                                            std::min(correctedPos.x, barrier.getPosition().x + barrier.getWidth()));
+                float closestY = std::max(barrier.getPosition().y, 
+                                            std::min(correctedPos.y, barrier.getPosition().y + barrier.getHeight()));
+
+                float distanceX = correctedPos.x - closestX;
+                float distanceY = correctedPos.y - closestY;
+                float distanceSQ = (distanceX * distanceX) + (distanceY * distanceY);
+
+                if(distanceSQ < (PLAYER_RADIUS * PLAYER_RADIUS)) {
+                    // collision detected
+                    float distance = std::sqrt(distanceSQ);
+                    float overlap = PLAYER_RADIUS - distance;
+
+                    if(distance > 0) {
+                        // push player away from the barrier
+                        correctedPos.x += (distanceX / distance) * overlap;
+                        correctedPos.y += (distanceY / distance) * overlap;
+                    }
+                    else {
+                        // edge case: player is exactly inside the barrier
+                        correctedPos.x += PLAYER_RADIUS;
+                    }
+
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}

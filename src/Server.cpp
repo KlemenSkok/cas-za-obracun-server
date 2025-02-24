@@ -5,6 +5,7 @@
 #include "Utilities/Utility.hpp"
 #include "Utilities/Constants.hpp"
 #include "Logging/Logger.hpp"
+#include "Game/Map/MapData.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -38,6 +39,13 @@ void Server::Run() {
 
 
         // --------------------------------------
+        SDL_Event e;
+        while(SDL_PollEvent(&e)) {
+            if(e.type == SDL_QUIT) {
+                // enable ctrl+C program exit
+                quit = true;
+            }
+        }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));         
     }
@@ -61,6 +69,15 @@ void Server::Setup(uint16_t port_in, uint16_t port_out) {
     catch (std::runtime_error &e) {
         throw std::runtime_error(std::string("Failed to start speaking thread: ") + e.what());
     }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    try {
+        MapData::LoadMap("../../assets/data/map_data.xml");
+    }
+    catch(std::runtime_error &e) {
+        throw std::runtime_error(std::string("Failed to load map data: ") + e.what());
+    }
+
 }
 
 void Server::Cleanup() {
@@ -69,8 +86,9 @@ void Server::Cleanup() {
     SocketListener::Stop();
     SocketSpeaker::Stop();
 
-    SDLNet_UDP_Close(SocketSpeaker::getSocket());
-    SDLNet_UDP_Close(SocketListener::getSocket());
+    // this was causing a double free
+    //SDLNet_UDP_Close(SocketSpeaker::getSocket());
+    //SDLNet_UDP_Close(SocketListener::getSocket());
 }
 
 
