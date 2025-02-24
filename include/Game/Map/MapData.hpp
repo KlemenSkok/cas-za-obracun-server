@@ -13,6 +13,7 @@
 #define GRID_CELL_SIZE 100 // [px]
 
 class LocalPlayer;
+class Projectile;
 
 class MapData {
 

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Communication/PacketTypes.hpp"
+#include "Containers.hpp"
 
 #include <cstdint>
 
@@ -16,9 +17,9 @@ class Projectile {
     
 public:
 
-    struct { float x, y; } start;
-    struct { float x, y; } position;
-    struct { float x, y; } velocity;
+    Point start;
+    Point position;
+    Point velocity;
 
     Projectile(float x, float y, float angle, uint16_t);
     ~Projectile() = default;

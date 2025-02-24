@@ -163,8 +163,9 @@ bool MapData::CheckCollision(const Player& player, Point& correctedPos) {
                 float distanceX = correctedPos.x - closestX;
                 float distanceY = correctedPos.y - closestY;
                 float distanceSQ = (distanceX * distanceX) + (distanceY * distanceY);
+                constexpr int playerRad = PLAYER_RADIUS * PLAYER_RADIUS;
 
-                if(distanceSQ < (PLAYER_RADIUS * PLAYER_RADIUS)) {
+                if(distanceSQ < playerRad) {
                     // collision detected
                     float distance = std::sqrt(distanceSQ);
                     float overlap = PLAYER_RADIUS - distance;
@@ -179,6 +180,42 @@ bool MapData::CheckCollision(const Player& player, Point& correctedPos) {
                         correctedPos.x += PLAYER_RADIUS;
                     }
 
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
+bool MapData::CheckCollision(const Projectile& projectile, Point& correctedPos) {
+    // player grid position
+    int p_grid_x = getGridKey(correctedPos.x);
+    int p_grid_y = getGridKey(correctedPos.y);
+
+    for(int x = p_grid_x - 1; x <= p_grid_x + 1; x++) {
+        for(int y = p_grid_y - 1; y <= p_grid_y + 1; y++) {
+
+            if(grid.find(x) == grid.end() || grid[x].find(y) == grid[x].end()) {
+                continue; // skip; nothing to check in this cell
+            }
+
+            for(const Barrier& barrier : grid[x][y]) {
+
+                float closestX = std::max(barrier.getPosition().x, 
+                                            std::min(correctedPos.x, barrier.getPosition().x + barrier.getWidth()));
+                float closestY = std::max(barrier.getPosition().y, 
+                                            std::min(correctedPos.y, barrier.getPosition().y + barrier.getHeight()));
+
+                float distanceX = correctedPos.x - closestX;
+                float distanceY = correctedPos.y - closestY;
+                float distanceSQ = (distanceX * distanceX) + (distanceY * distanceY);
+                constexpr int projectileRad = PROJECTILE_RADIUS * PROJECTILE_RADIUS;
+
+                if(distanceSQ < projectileRad) {
+                    // collision detected
+                    // projectile hit a wall and will be destroyed
                     return true;
                 }
             }

@@ -2,6 +2,7 @@
 // GameSession.cpp
 
 #include "Game/GameSession.hpp"
+#include "Game/Map/MapData.hpp"
 #include "Utilities/Constants.hpp"
 #include "Communication/PacketTypes.hpp"
 
@@ -269,7 +270,7 @@ void GameSession::updateEverything(float deltaTime) {
 // Checking for collisions
 void GameSession::checkCollisions() {
 
-    // first check for any projectile hits
+    // first check for any projectile hits (players)
     for(auto& p : this->players) {
         for(auto it = this->projectiles.begin(); it != this->projectiles.end();  ) {
             int dx = it->second->position.x - p.second->position.x;
@@ -284,6 +285,13 @@ void GameSession::checkCollisions() {
         }
     }
 
+    // check for projectile collisions with map barriers
+    for(auto it = this->projectiles.begin(); it != this->projectiles.end();  ) {
+        if(MapData::CheckCollision(*it->second.get(), it->second->position)) {
+            it = this->projectiles.erase(it);
+            std::cout << "Collision detected.\n";
+        }
+        else ++it;
+    }
 
-    // todo: check for collisions with stationary objects (players AND projectiles)
 }
