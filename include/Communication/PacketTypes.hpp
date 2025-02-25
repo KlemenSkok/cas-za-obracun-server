@@ -18,7 +18,8 @@ enum class PacketType: uint8_t {
     // server->client
     PLAYERS_IN_RANGE,           // info about other players (and self) that are sent periodically. a list of PlayerData
     PROJECTILES_IN_RANGE,       // info about active projectiles. a list of ProjectileData
-    GAME_STATE                  // game state, score, time remaining etc.
+    GAME_STATE,                 // game state, score, time remaining etc.
+    FLAG_STATE,                 // flag state, position, carrier etc.
     // ...
 };
 
@@ -29,8 +30,8 @@ namespace data_packets {
     struct PlayerData {
         uint16_t id;
         int8_t posture;
-        struct { float x, y; } position;
-        struct { float x, y; } velocity;
+        PointF position;
+        PointF velocity;
         uint8_t keyStates;
         float direction;
 
@@ -55,8 +56,8 @@ namespace data_packets {
     // data for client side projectile rendering
     struct ProjectileData {
         uint16_t id;
-        struct { float x, y; } position;
-        struct { float x, y; } velocity;
+        PointF position;
+        PointF velocity;
 
         Uint32 timestamp; // server timestamp for client side interpolation
 
@@ -65,5 +66,20 @@ namespace data_packets {
         void deserialize(PacketData&, size_t);
         ProjectileData& operator=(const ProjectileData&);
         ProjectileData();
+    };
+
+    // flag data
+    struct FlagData {
+        PointF position;
+        uint16_t carrierID;
+        uint8_t otherData;
+
+        Uint32 timestamp; // server timestamp for client side interpolation
+
+        static int size();
+        void serialize(PacketData&) const;
+        void deserialize(PacketData&, size_t);
+        FlagData& operator=(const FlagData&);
+        FlagData();
     };
 }

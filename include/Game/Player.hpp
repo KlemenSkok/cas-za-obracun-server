@@ -12,6 +12,7 @@ class Player {
 
     uint16_t id;
     bool projectileTriggered;
+    bool interactionTriggered;
     
     // Posture [0, 100]. When it runs out, player gets concussed (slower movement)
     int8_t posture;
@@ -20,12 +21,13 @@ class Player {
     Uint32 lastHealTime;
     // Concussion occours on posture break. It lasts until posture equals 0
     bool isConcussed;
+    bool hasFlag;
 
 public:
 
-    Point position;
-    Point velocity;
-    Point acceleration;
+    PointF position;
+    PointF velocity;
+    PointF acceleration;
 
     KeyStates keyStates;
     float direction;
@@ -37,6 +39,7 @@ public:
         acceleration.x = acceleration.y = 0.0f;
         lastDamageTime = lastHealTime = SDL_GetTicks();
         posture = 100;
+        hasFlag = false;
     }
     ~Player() = default;
     uint16_t get_id();
@@ -47,6 +50,11 @@ public:
     data_packets::PlayerData dumpMovement(); // dump all data necessary for player movement
     void importUpdates(data_packets::PlayerKeyStates, float);
     bool shotProjectile();
+    bool isInteracting();
+    bool isPostureBroken() const;
 
-    Point getPosition() const { return position; }
+    void captureFlag();
+    void dropFlag();
+
+    PointF getPosition() const { return position; }
 };

@@ -46,7 +46,7 @@ void MapData::AddBarrier(Barrier& b) {
 int parseBarrierNode(tinyxml2::XMLNode* node, Barrier& b) {
     using namespace tinyxml2;
     
-    Point pos;
+    PointF pos;
     int w, h, texture_id;
     int err = 0;
 
@@ -141,7 +141,7 @@ int MapData::LoadMap(const char* filename) {
  * @param correctedPos The position to check for collision. If a collision is detected, this will be updated to the corrected position.
  * @return `true` if collision was detected, `false` otherwise.
  */
-bool MapData::CheckCollision(const Player& player, Point& correctedPos) {
+bool MapData::CheckCollision(const Player& player, PointF& correctedPos) {
     // player grid position
     int p_grid_x = getGridKey(correctedPos.x);
     int p_grid_y = getGridKey(correctedPos.y);
@@ -189,7 +189,7 @@ bool MapData::CheckCollision(const Player& player, Point& correctedPos) {
 }
 
 
-bool MapData::CheckCollision(const Projectile& projectile, Point& correctedPos) {
+bool MapData::CheckCollision(const Projectile& projectile, PointF& correctedPos) {
     // player grid position
     int p_grid_x = getGridKey(correctedPos.x);
     int p_grid_y = getGridKey(correctedPos.y);

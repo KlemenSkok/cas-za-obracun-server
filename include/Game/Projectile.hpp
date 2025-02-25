@@ -17,9 +17,9 @@ class Projectile {
     
 public:
 
-    Point start;
-    Point position;
-    Point velocity;
+    PointF start;
+    PointF position;
+    PointF velocity;
 
     Projectile(float x, float y, float angle, uint16_t);
     ~Projectile() = default;

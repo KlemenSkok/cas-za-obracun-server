@@ -42,7 +42,8 @@
 #define PLAYER_RADIUS 20 // px
 // movement
 #define PLAYER_MAX_SPEED 200.0f // [px/s]
-#define PLAYER_MAX_SPEED_SLOWED 75.0f
+#define PLAYER_MAX_SPEED_SLOWED 75.0f // [px/s]
+#define PLAYER_MAX_SPEED_CARRYING 100.0f // [px/s]
 #define PLAYER_ACCELERATION 1200.0f // [px/s^2]
 #define PLAYER_FRICTION 1500.0f // [px/s^2]
 // healing
@@ -56,3 +57,10 @@
 #define PROJECTILE_VELOCITY 500.0f
 #define PROJECTILE_RANGE 1770*1770 // 2500 px in any direction
 #define PROJECTILE_POSTURE_DAMAGE 22
+
+// -- FLAGS -- //
+#define GAME_FLAG_SIZE {75, 50} // [px] w, h
+#define GAME_FLAG_PICKUP_RANGE 100 // [px] from center of the flag
+#define GAME_FLAG_HOME_POS_X 400 // [px] x, y
+#define GAME_FLAG_HOME_POS_Y 300 // [px] x, y
+#define GAME_FLAG_HOME_POS {GAME_FLAG_HOME_POS_X, GAME_FLAG_HOME_POS_Y} // [px] x, y

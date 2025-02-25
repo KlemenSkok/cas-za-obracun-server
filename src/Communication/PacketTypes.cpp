@@ -154,3 +154,56 @@ ProjectileData::ProjectileData()
     position{0.0f, 0.0f}, 
     velocity{0.0f, 0.0f}, 
     timestamp(SDL_GetTicks()) {}
+
+// FlagData
+
+int FlagData::size() {
+    constexpr int size = 2 * sizeof(float) +        // position
+                        sizeof(uint16_t) +      // carrierID
+                        sizeof(uint8_t) +       // otherData
+                        sizeof(Uint32);         // server timestamp
+    return size;
+}
+
+void FlagData::serialize(PacketData& packet) const {
+    packet.append(position.x);
+    packet.append(position.y);
+    packet.append(carrierID);
+    packet.append(otherData);
+    packet.append(timestamp);
+}
+
+void FlagData::deserialize(PacketData& packet, size_t offset) {
+    // position
+    packet.getByOffset(position.x, sizeof(float), offset);
+    packet.getByOffset(position.y, sizeof(float), offset + sizeof(float));
+    offset += 2 * sizeof(float);
+    // carrierID
+    packet.getByOffset(carrierID, sizeof(uint16_t), offset);
+    offset += sizeof(uint16_t);
+    // otherData
+    packet.getByOffset(otherData, sizeof(uint8_t), offset);
+    offset += sizeof(uint8_t);
+    // timestamp
+    packet.getByOffset(timestamp, sizeof(Uint32), offset);
+    offset += sizeof(Uint32);
+}
+
+FlagData& FlagData::operator=(const FlagData& other) {
+    if(this == &other)
+        return *this;
+
+    this->position.x = other.position.x;
+    this->position.y = other.position.y;
+    this->carrierID = other.carrierID;
+    this->otherData = other.otherData;
+    this->timestamp = other.timestamp;
+
+    return *this;
+}
+
+FlagData::FlagData() 
+    : position{0.0f, 0.0f}, 
+    carrierID(0), 
+    otherData(0), 
+    timestamp(SDL_GetTicks()) {}

@@ -33,14 +33,21 @@ data_packets::PlayerData Player::dumpMovement() {
 
 void Player::importUpdates(data_packets::PlayerKeyStates data, float direction) {
 
-    if((data.keyStates & 0b00100000) && !this->keyStates.left_click && (SDL_GetTicks() - this->lastProjectileTime > PROJECTILE_THROW_COOLDOWN)) {
+    KeyStates ks;
+    decodeKeyStates(data.keyStates, ks);
+
+    if(ks.left_click && !this->keyStates.left_click && (SDL_GetTicks() - this->lastProjectileTime > PROJECTILE_THROW_COOLDOWN)) {
         this->lastProjectileTime = SDL_GetTicks();
         
         // trigger a projectile deployment (done by GameSession)
         this->projectileTriggered = true;
     }
+    if(ks.use_button && !this->keyStates.use_button) {
+        // player may interact with flag
+        this->interactionTriggered = true;
+    }
 
-    decodeKeyStates(data.keyStates, this->keyStates);
+    this->keyStates = ks;
     this->direction = direction;
     // reset acceleration
     this->acceleration.x = 0.0f;
@@ -75,7 +82,7 @@ void Player::update(float deltaTime) {
     }
     
 
-    Point newPosition = { this->position.x, this->position.y };
+    PointF newPosition = { this->position.x, this->position.y };
 
     // update the player position
     this->velocity.x += this->acceleration.x * deltaTime;
@@ -105,7 +112,7 @@ void Player::update(float deltaTime) {
     }
 
     // determine speed limit (players are slower when concussed)
-    float speed_cap = (this->posture > 0) ? PLAYER_MAX_SPEED : PLAYER_MAX_SPEED_SLOWED;
+    float speed_cap = (this->posture == 0) ? PLAYER_MAX_SPEED_SLOWED : (hasFlag) ? PLAYER_MAX_SPEED_CARRYING : PLAYER_MAX_SPEED;
 
     // clamp velocity
     if(this->velocity.x > speed_cap) this->velocity.x = speed_cap;
@@ -154,6 +161,13 @@ bool Player::shotProjectile() {
     return false;
 }
 
+bool Player::isInteracting() {
+    if(this->interactionTriggered) {
+        this->interactionTriggered = false;
+        return true;
+    }
+    return false;
+}
 void Player::dealPostureDamage() {
     this->posture -= PROJECTILE_POSTURE_DAMAGE;
     if(this->posture <= 0) {
@@ -164,4 +178,16 @@ void Player::dealPostureDamage() {
     }
 
     this->lastDamageTime = SDL_GetTicks();
+}
+
+bool Player::isPostureBroken() const {
+    return this->posture == 0;
+}
+
+void Player::captureFlag() {
+    this->hasFlag = true;
+}
+
+void Player::dropFlag() {
+    this->hasFlag = false;
 }

@@ -14,6 +14,7 @@
 #include "Logging/Logger.hpp"
 #include "Containers.hpp"
 #include "Projectile.hpp"
+#include "Flag.hpp"
 
 #define MAX_PLAYERS 4 // per session
 
@@ -23,6 +24,7 @@ private:
     std::unordered_map<uint16_t, std::shared_ptr<Client>> clients;
     std::unordered_map<uint16_t, std::shared_ptr<Player>> players;
     std::unordered_map<uint16_t, std::shared_ptr<Projectile>> projectiles;
+    std::shared_ptr<Flag> flag;
 
     uint8_t id;
 
@@ -30,10 +32,10 @@ private:
 
 public: 
     static std::vector<std::unique_ptr<UDPmessage>> pending_msgs;
-    
+
 
     GameSession(int id) : id(id), lastUpdate(SDL_GetTicks()) {
-        //std::cout << "Session created. ID: " << id << '\n';
+        this->flag = std::make_shared<Flag>(GAME_FLAG_HOME_POS_X, GAME_FLAG_HOME_POS_X);
     }
     ~GameSession() {
         //std::cout << "Session destructor called. ID: " << id << '\n';
@@ -46,7 +48,7 @@ public:
     bool acceptsPlayers();
     uint8_t size(); // == number of clients
     void Stop(UDPsocket);
-    
+
     // session main loop
     void manageSession();
     // main loop components
@@ -69,8 +71,8 @@ public:
 
     // functions for sending out packets
     void sendGameUpdatesToClient(uint16_t c_id);
+    void sendFlagStateToClient(uint16_t c_id);
     void sendPlayerStatesToClient(uint16_t c_id);
     void sendProjectileStatesToClient(uint16_t c_id);
-
 
 };
