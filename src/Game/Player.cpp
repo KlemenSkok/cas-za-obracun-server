@@ -168,6 +168,7 @@ bool Player::isInteracting() {
     }
     return false;
 }
+
 void Player::dealPostureDamage() {
     this->posture -= PROJECTILE_POSTURE_DAMAGE;
     if(this->posture <= 0) {

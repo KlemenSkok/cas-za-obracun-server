@@ -41,9 +41,9 @@
 // size
 #define PLAYER_RADIUS 20 // px
 // movement
-#define PLAYER_MAX_SPEED 200.0f // [px/s]
-#define PLAYER_MAX_SPEED_SLOWED 75.0f // [px/s]
-#define PLAYER_MAX_SPEED_CARRYING 100.0f // [px/s]
+#define PLAYER_MAX_SPEED 100.0f // [px/s]
+#define PLAYER_MAX_SPEED_SLOWED 37.5f // [px/s]
+#define PLAYER_MAX_SPEED_CARRYING 50.0f // [px/s]
 #define PLAYER_ACCELERATION 1200.0f // [px/s^2]
 #define PLAYER_FRICTION 1500.0f // [px/s^2]
 // healing

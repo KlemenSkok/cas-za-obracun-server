@@ -49,3 +49,18 @@ void dumpPacket(UDPpacket *packet) {
     std::cout << "\n";
 }
 
+
+
+Uint32 getGameStateDuration(GameState s) {
+    switch(s) {
+        case GameState::WAITING_FOR_PLAYERS:
+            return SDL_MAX_UINT32;
+            break;
+        case GameState::ROUND_RUNNING:
+            return SDL_MAX_UINT32;
+        case GameState::BETWEEN_ROUNDS:
+            return 60000; // 10 s
+        case GameState::GAME_FINISHED:
+            return 180000; // 30 s
+    }
+}

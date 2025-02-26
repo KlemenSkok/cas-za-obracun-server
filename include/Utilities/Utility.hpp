@@ -23,6 +23,15 @@ namespace SDLUtils {
     void cleanup();
 }
 
+// game info constants
+enum class GameState: uint8_t {
+    WAITING_FOR_PLAYERS = 0,
+    BETWEEN_ROUNDS,
+    ROUND_RUNNING,
+    GAME_FINISHED
+};
+
+Uint32 getGameStateDuration(GameState);
 
 
 std::string formatIP(Uint32 ip);

@@ -1,7 +1,7 @@
 
 // Client.cpp
 
-#include "Game/Client.hpp"
+#include "Communication/Client.hpp"
 #include "Utilities/Constants.hpp"
 
 

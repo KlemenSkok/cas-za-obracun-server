@@ -30,8 +30,20 @@ uint8_t GameSession::get_id() {
 }
 
 void GameSession::addClient(uint16_t id, IPaddress ip) {
+    
+    // assign to a team
+    uint8_t teamsCnt[2] = {0, 0};
+    for(const auto& [pid, pl] : players) {
+        teamsCnt[pl->getTeam()-1]++;
+    }
+    uint8_t teamNumber = (teamsCnt[0] > teamsCnt[1]) ? 2 : 1;
+
     clients[id] = std::make_shared<Client>(id, ip);
     players[id] = std::make_shared<Player>(id);
+
+    auto p = players[id];
+    p->setTeam(teamNumber);
+
 }
 
 void GameSession::removeClient(uint16_t c_id) {
@@ -149,7 +161,7 @@ void GameSession::processPlayerUpdates(PacketData data) {
     // check if the player shot a projectile
     // player cant shoot while carrying the flag
     if(p->shotProjectile() && (p->get_id() != this->flag->getCarrierID())) {
-        std::shared_ptr<Projectile> pr = std::make_shared<Projectile>(p->position.x, p->position.y, p->direction, p->get_id());
+        std::shared_ptr<Projectile> pr = std::make_shared<Projectile>(p->position.x, p->position.y, p->direction, p->get_id(), p->getTeam());
         this->projectiles[pr->get_id()] = pr;
     }
 
@@ -195,6 +207,8 @@ void GameSession::manageSession() {
     this->updateEverything(deltaTime / 1000.0f);
 
     this->checkCollisions();
+
+    this->checkGameState();
     
     this->broadcastUpdates();
 
@@ -332,7 +346,7 @@ void GameSession::checkCollisions() {
         for(auto it = this->projectiles.begin(); it != this->projectiles.end();  ) {
             int dx = it->second->position.x - p.second->position.x;
             int dy = it->second->position.y - p.second->position.y;
-            if(it->second->get_parent_id() != p.second->get_id() && (dx*dx + dy*dy) < (PLAYER_RADIUS*PLAYER_RADIUS + PROJECTILE_RADIUS*PROJECTILE_RADIUS)) {
+            if(it->second->get_parent_team() != p.second->getTeam() && (dx*dx + dy*dy) < (PLAYER_RADIUS*PLAYER_RADIUS + PROJECTILE_RADIUS*PROJECTILE_RADIUS)) {
                 // destroy the projectile
                 it = this->projectiles.erase(it);
                 // todo: deal posture damage to player
@@ -358,5 +372,28 @@ void GameSession::checkCollisions() {
         }
         else ++it;
     }
+
+}
+
+/**
+ * @brief Manage the game state
+ */
+void GameSession::checkGameState() {
+
+    Uint32 deltaTime = SDL_GetTicks() - this->currentStateDuration;
+
+    if(currentStateDuration >= getGameStateDuration(this->currentState)) {
+        // switch game states
+        switch(this->currentState) {
+            case GameState::BETWEEN_ROUNDS:
+                this->currentState = GameState::ROUND_RUNNING;
+                // reset all positions etc.
+
+                break;
+            case GameState::GAME_FINISHED:
+                // cleanup, kick all clients, close session
+        }
+    }
+
 
 }

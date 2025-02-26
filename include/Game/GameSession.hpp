@@ -9,12 +9,13 @@
 #include <memory>
 #include <vector>
 
-#include "Client.hpp"
+#include "Communication/Client.hpp"
 #include "Player.hpp"
 #include "Logging/Logger.hpp"
 #include "Containers.hpp"
 #include "Projectile.hpp"
 #include "Flag.hpp"
+#include "Utilities/Utility.hpp"
 
 #define MAX_PLAYERS 4 // per session
 
@@ -30,16 +31,22 @@ private:
 
     Uint32 lastUpdate;
 
+    // game state tracking
+    GameState currentState;
+    Uint32 currentStateDuration; // [ms] time since the start of this state
+
 public: 
     static std::vector<std::unique_ptr<UDPmessage>> pending_msgs;
 
 
-    GameSession(int id) : id(id), lastUpdate(SDL_GetTicks()) {
+    GameSession(int id) : 
+        id(id), 
+        lastUpdate(SDL_GetTicks()), 
+        currentState(GameState::WAITING_FOR_PLAYERS) 
+    {
         this->flag = std::make_shared<Flag>(GAME_FLAG_HOME_POS_X, GAME_FLAG_HOME_POS_X);
     }
-    ~GameSession() {
-        //std::cout << "Session destructor called. ID: " << id << '\n';
-    }
+    ~GameSession() = default;
 
     uint8_t get_id();
 
@@ -55,6 +62,7 @@ public:
     void updateEverything(float);
     void checkCollisions();
     void broadcastUpdates();
+    void checkGameState();
 
     // functions for dealing with clients
     void addClient(uint16_t c_id, IPaddress ip);

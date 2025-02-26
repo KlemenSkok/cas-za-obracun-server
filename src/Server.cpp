@@ -47,7 +47,7 @@ void Server::Run() {
             }
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));         
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
 
@@ -122,8 +122,10 @@ void Server::processNewPackets() {
                 auto remove_client = [&]() {
                     Server::removeClient(client_id);
                     // send denial to the client
+                    PacketData d(true);
+                    d.flags() |= (1 << FLAG_FIN); // send back FIN as a denial
                     recv_msg->data.reset();
-                    recv_msg->data = PacketData(true).getRawData();
+                    recv_msg->data = d.getRawData();
                     recv_msg->len = 1;
                     addMessageToQueue(std::move(recv_msg));
                 };
@@ -162,6 +164,19 @@ void Server::processNewPackets() {
                 //}
 
                 continue;
+            }
+            else {
+                PacketData d(true);
+                d.flags() |= (1 << FLAG_FIN);
+                recv_msg->data.reset();
+                recv_msg->data = d.getRawData();
+                recv_msg->len = 1;
+                addMessageToQueue(std::move(recv_msg));
+
+                // tole reš zlo specificen primer:
+                // ko server crasha in se spet nazaj zazene, clienti pa se laufajo in posiljajo, kar bi drgac povzrocil zmedo in dodatne crashe
+                // al pa ko random programi/kitajci pingajo port
+                continue; //!
             }
         }
 

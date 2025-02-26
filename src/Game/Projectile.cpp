@@ -7,19 +7,24 @@
 #include <cmath>
 
 
-uint16_t Projectile::get_id() {
+uint16_t Projectile::get_id() const {
     return this->id;
 }
 
-uint16_t Projectile::get_parent_id() {
+uint16_t Projectile::get_parent_id() const {
     return this->parent_id;
 }
 
-Projectile::Projectile(float x, float y, float angle, uint16_t parent_id) {
+uint8_t Projectile::get_parent_team() const {
+    return this->parent_team;
+}
+
+Projectile::Projectile(float x, float y, float angle, uint16_t parent_id, uint8_t team) {
 
     static uint16_t id_counter = 0;
     this->id = id_counter++;
     this->parent_id = parent_id;
+    this->parent_team = team;
 
     // convert angle back to radians
     constexpr float multiplier = M_PI / 180.0f;

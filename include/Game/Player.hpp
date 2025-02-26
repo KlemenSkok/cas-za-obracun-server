@@ -23,6 +23,9 @@ class Player {
     bool isConcussed;
     bool hasFlag;
 
+    // players are split in two teams
+    uint8_t teamNumber;
+
 public:
 
     PointF position;
@@ -55,6 +58,9 @@ public:
 
     void captureFlag();
     void dropFlag();
+
+    uint8_t getTeam() const { return teamNumber; }
+    void setTeam(uint8_t t) { teamNumber = t; }
 
     PointF getPosition() const { return position; }
 };
