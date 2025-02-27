@@ -18,10 +18,10 @@ void GameSession::initialize() {
     
     this->sites[1] = std::make_shared<Site>(1);
     this->sites[1]->setPosition(TEAM_SITE_1_POSITION);
-    this->sites[1]->setSize(TEAM_SIZE_1_SIZE);
+    this->sites[1]->setSize(TEAM_SITE_1_SIZE);
     this->sites[2] = std::make_shared<Site>(2);
     this->sites[2]->setPosition(TEAM_SITE_2_POSITION);
-    this->sites[2]->setSize(TEAM_SIZE_2_SIZE);
+    this->sites[2]->setSize(TEAM_SITE_2_SIZE);
 
     std::cout << "Waiting for players...\n";
 }

@@ -75,7 +75,8 @@
 
 #define GAME_STATE_UPDATE_PERIOD 1000 // [ms] send game state packet every 1 second
 
+// sites for flag retrieval
 #define TEAM_SITE_1_POSITION { -200.0f, -50.0f }
-#define TEAM_SIZE_1_SIZE { 100, 100 }
+#define TEAM_SITE_1_SIZE { 100, 100 }
 #define TEAM_SITE_2_POSITION { 200.0f, -50.0f }
-#define TEAM_SIZE_2_SIZE { 100, 100 }
+#define TEAM_SITE_2_SIZE { 100, 100 }
