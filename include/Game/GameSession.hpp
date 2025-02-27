@@ -36,6 +36,7 @@ private:
     // game state tracking
     GameState currentState;
     Uint32 currentStateStartTime; // [ms] time since the start of this state
+    Uint32 lastStateUpdateTime; // [ms]
 
     uint8_t currentRound;
     std::vector<uint8_t> score;
@@ -48,26 +49,22 @@ public:
         id(id), 
         lastUpdate(SDL_GetTicks()), 
         currentState(GameState::WAITING_FOR_PLAYERS), 
-        currentRound(0)
+        currentRound(0),
+        lastStateUpdateTime(SDL_GetTicks())
     {
-        this->flag = std::make_shared<Flag>(GAME_FLAG_HOME_POS_X, GAME_FLAG_HOME_POS_X);
-        this->score = std::vector<uint8_t>(2, 0);
-        
-        this->sites[1] = std::make_shared<Site>(1);
-        this->sites[2] = std::make_shared<Site>(2);
-
-        std::cout << "Waiting for players...\n";
-
+        this->initialize();
     }
     ~GameSession() = default;
 
     uint8_t get_id();
 
     // utility functions
-    bool isFull();
-    bool acceptsPlayers();
-    uint8_t size(); // == number of clients
+    bool isFull() const;
+    bool isEnding() const;
+    bool acceptsPlayers() const;
+    uint8_t size() const; // == number of clients
     void Stop(UDPsocket);
+    void initialize();
 
     // session main loop
     void manageSession();
@@ -102,5 +99,10 @@ public:
     void sendFlagStateToClient(uint16_t c_id);
     void sendPlayerStatesToClient(uint16_t c_id);
     void sendProjectileStatesToClient(uint16_t c_id);
+    void sendGameStateToClient(uint16_t c_id);
+
+    void forceGameStateUpdates();
+
+    data_packets::GameStateData generateGameStateData();
 
 };

@@ -26,6 +26,8 @@ class Player {
     // players are split in two teams
     uint8_t teamNumber;
 
+    bool controlsFreezed;
+
 public:
 
     PointF position;
@@ -36,13 +38,17 @@ public:
     float direction;
     Uint32 lastProjectileTime; // timestamp of last projectile throw (for cooldown)
 
-    Player(uint16_t id) : id(id), projectileTriggered(false) {
+    Player(uint16_t id) : 
+        id(id), 
+        projectileTriggered(false),
+        controlsFreezed(false),
+        posture(100),
+        hasFlag(false)
+    {
         position.x = position.y = 0.0f;
         velocity.x = velocity.y = 0.0f;
         acceleration.x = acceleration.y = 0.0f;
         lastDamageTime = lastHealTime = SDL_GetTicks();
-        posture = 100;
-        hasFlag = false;
     }
     ~Player() = default;
     uint16_t get_id();
@@ -65,4 +71,7 @@ public:
 
     PointF getPosition() const { return position; }
     void setPosition(const PointF& p) { position = p; }
+
+    void freezeControls();
+    void unfreezeControls();
 };

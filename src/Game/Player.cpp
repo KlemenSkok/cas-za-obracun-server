@@ -34,7 +34,10 @@ data_packets::PlayerData Player::dumpMovement() {
 void Player::importUpdates(data_packets::PlayerKeyStates data, float direction) {
 
     KeyStates ks;
-    decodeKeyStates(data.keyStates, ks);
+
+    if(!this->controlsFreezed) {
+        decodeKeyStates(data.keyStates, ks);
+    }
 
     if(ks.left_click && !this->keyStates.left_click && (SDL_GetTicks() - this->lastProjectileTime > PROJECTILE_THROW_COOLDOWN)) {
         this->lastProjectileTime = SDL_GetTicks();
@@ -203,4 +206,16 @@ void Player::captureFlag() {
 
 void Player::dropFlag() {
     this->hasFlag = false;
+}
+
+void Player::freezeControls() {
+    this->controlsFreezed = true;
+    this->keyStates.w = 0;
+    this->keyStates.a = 0;
+    this->keyStates.s = 0;
+    this->keyStates.d = 0;
+}
+
+void Player::unfreezeControls() {
+    this->controlsFreezed = false;
 }

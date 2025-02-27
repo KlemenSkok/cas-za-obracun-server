@@ -12,16 +12,34 @@
 std::vector<std::unique_ptr<UDPmessage>> GameSession::pending_msgs;
 
 
-bool GameSession::isFull() {
+void GameSession::initialize() {
+    this->flag = std::make_shared<Flag>(GAME_FLAG_HOME_POS_X, GAME_FLAG_HOME_POS_X);
+    this->score = std::vector<uint8_t>(2, 0);
+    
+    this->sites[1] = std::make_shared<Site>(1);
+    this->sites[1]->setPosition(TEAM_SITE_1_POSITION);
+    this->sites[1]->setSize(TEAM_SIZE_1_SIZE);
+    this->sites[2] = std::make_shared<Site>(2);
+    this->sites[2]->setPosition(TEAM_SITE_2_POSITION);
+    this->sites[2]->setSize(TEAM_SIZE_2_SIZE);
+
+    std::cout << "Waiting for players...\n";
+}
+
+bool GameSession::isFull() const {
     return clients.size() >= MAX_PLAYERS;
 }
 
-bool GameSession::acceptsPlayers() {
+bool GameSession::isEnding() const {
+    return this->currentState == GameState::GAME_FINISHED;
+}
+
+bool GameSession::acceptsPlayers() const {
     // zaenkrat gledamo samo na stevilo igralcev v igri
     return !this->isFull();
 }
 
-uint8_t GameSession::size() {
+uint8_t GameSession::size() const {
     return clients.size();
 }
 
@@ -164,7 +182,7 @@ void GameSession::processPlayerUpdates(PacketData data) {
     p->importUpdates(pks, direction);
 
     // shooting and flag are only enabled during the round
-    if(!(this->currentState == GameState::ROUND_RUNNING)) {
+    if(this->currentState == GameState::ROUND_RUNNING) {
 
         // check if the player shot a projectile
         // player cant shoot while carrying the flag
@@ -217,7 +235,7 @@ void GameSession::manageSession() {
     this->checkCollisions();
 
     this->checkGameState();
-    
+
     this->broadcastUpdates();
 
 }
@@ -229,6 +247,17 @@ void GameSession::sendGameUpdatesToClient(uint16_t c_id) {
     GameSession::sendFlagStateToClient(c_id);
     GameSession::sendProjectileStatesToClient(c_id);
 
+}
+
+/**
+ * @brief Force immediate sending game state updates to clients. Occours on state changes
+ */
+void GameSession::forceGameStateUpdates() {
+    this->lastStateUpdateTime = SDL_GetTicks();
+
+    for(auto& p : players) {
+        GameSession::sendGameStateToClient(p.first);
+    }
 }
 
 void GameSession::sendPlayerStatesToClient(uint16_t c_id) {
@@ -307,16 +336,49 @@ void GameSession::sendFlagStateToClient(uint16_t c_id) {
 
 }
 
+void GameSession::sendGameStateToClient(uint16_t c_id) {
+    PacketData d(true);
+    d.flags() |= (1 << FLAG_DATA);                      // 1 B
+    d.append(this->id);                                 // 1 B
+    d.append(c_id);                                     // 2 B
+    d.append(clients[c_id]->getLastSentPacketID());     // 4 B
+    d.append((uint8_t)PacketType::GAME_STATE);          // 1 B
+
+    GameSession::generateGameStateData().serialize(d);  // 10 B
+
+    std::unique_ptr<UDPmessage> msg = std::make_unique<UDPmessage>();
+    msg->ip = std::make_unique<IPaddress>(clients[c_id]->get_ip());
+    msg->data = d.getRawData();
+    msg->len = d.size();
+
+    GameSession::pending_msgs.push_back(std::move(msg));
+
+    // expected packet size: 19 B
+
+}
+
 //
 // MAIN LOOP COMPONENTS
 //
 
 // sending game state updates to clients
 void GameSession::broadcastUpdates() {
+
     // send out data to players
     for(auto& p : players) {
         GameSession::sendGameUpdatesToClient(p.first);
     }
+
+    // send games state updates
+    if(SDL_GetTicks() - this->lastStateUpdateTime > GAME_STATE_UPDATE_PERIOD) {
+        this->lastStateUpdateTime = SDL_GetTicks();
+        
+        for(auto& p : players) {
+            GameSession::sendGameStateToClient(p.first);
+        }
+
+    }
+
 }
 
 /**
@@ -415,7 +477,8 @@ void GameSession::checkGameState() {
                 break;
             case GameState::GAME_FINISHED:
                 // cleanup, kick all clients, session closes automatically
-                // todo
+                this->forceGameStateUpdates();
+
                 std::cout << "The game has finished!\n";
                 break;
         }
@@ -446,12 +509,14 @@ void GameSession::resetRound() {
             start_positions[p->getTeam() - 1].pop_back();
 
             p->setPosition(start_pos);
+            p->freezeControls();
         }
         
     }
 
     this->projectiles.clear();
     this->flag->reset();
+    this->flag->updatePosition(GAME_FLAG_HOME_POS);
 
 }
 
@@ -463,6 +528,7 @@ void GameSession::startWaitingNextRound() {
     // 10s pause before the start of the round. Players are freezed in place
     this->currentState = GameState::WAITING_NEXT_ROUND;
     this->currentStateStartTime = SDL_GetTicks();
+    this->forceGameStateUpdates();
     this->resetRound();
 
     std::cout << "Waiting for next round...\n";
@@ -475,6 +541,7 @@ void GameSession::finishGame() {
     // Announce the winner, wait for players to leave.
     this->currentState = GameState::GAME_FINISHED;
     this->currentStateStartTime = SDL_GetTicks();
+    this->forceGameStateUpdates();
 
     // every 1 second send out a new packet called data_packet::GameResults containing the winning team
     // lasts 30s
@@ -496,6 +563,7 @@ void GameSession::endRound(uint8_t winner) {
     else {
         this->currentStateStartTime = SDL_GetTicks();
         this->currentState = GameState::ROUND_ENDING;
+        this->forceGameStateUpdates();
     }
 
     
@@ -504,10 +572,30 @@ void GameSession::endRound(uint8_t winner) {
 void GameSession::startRound() {
 
     this->currentState = GameState::ROUND_RUNNING;
+    this->forceGameStateUpdates();
+
+    // unfreeze players
+    for(auto [pid, p] : players) {
+        p->unfreezeControls();
+    }
 
     // start a new round
     this->currentRound++;
     this->currentStateStartTime = SDL_GetTicks();
     std::cout << "Starting round " << (int)this->currentRound << '\n';
 
+}
+
+data_packets::GameStateData GameSession::generateGameStateData() {
+    using namespace data_packets;
+
+    GameStateData data;
+    data.elapsedTime = this->currentStateStartTime;
+    data.gameState = this->currentState;
+    
+    data.teamScores = 0;
+    data.teamScores |= (this->score[0] & 0xF) << 4;
+    data.teamScores |= this->score[1] & 0xF;
+
+    return data;
 }

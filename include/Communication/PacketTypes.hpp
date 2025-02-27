@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Containers.hpp"
+#include "Utilities/Utility.hpp"
 
 #include <cstdint>
 #include <vector>
@@ -82,4 +83,21 @@ namespace data_packets {
         FlagData& operator=(const FlagData&);
         FlagData();
     };
+
+    // data about game for clients (enum GAME_STATE)
+    struct GameStateData {
+        GameState gameState;
+        uint8_t teamScores; // first 4 bits are team 1, last 4 bits are team 2 
+        Uint32 elapsedTime;
+
+        Uint32 serverTime; // server timestamp for client side interpolation
+
+
+        static int size();
+        void serialize(PacketData&) const;
+        void deserialize(PacketData&, size_t);
+        GameStateData& operator=(const GameStateData&);
+        GameStateData();
+    };
+
 }

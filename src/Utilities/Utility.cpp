@@ -58,11 +58,11 @@ Uint32 getGameStateDuration(GameState s) {
         case GameState::ROUND_RUNNING:
             return SDL_MAX_UINT32;
         case GameState::WAITING_NEXT_ROUND:
-            return 10 * 1000; // 10 s
+            return int(GameState::WAITING_NEXT_ROUND) * 1000;
         case GameState::GAME_FINISHED:
-            return 30 * 1000; // 30 s
+            return int(GameState::GAME_FINISHED) * 1000;
         case GameState::ROUND_ENDING:
-            return 3 * 1000; // 3s
+            return int(GameState::ROUND_ENDING) * 1000;
     }
     return 0;
 }

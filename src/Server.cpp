@@ -273,9 +273,17 @@ void Server::processNewPackets() {
 }
 
 void Server::manageGameSessions() {
-    for(auto& s : _sessions) {
-        s.second->manageSession();
+
+    for(auto it = _sessions.begin(); it != _sessions.end();  ) {
+        it->second->manageSession();
+
+        if(it->second->isEnding()) {
+            auto tmp = it++;
+            Server::removeSession(tmp->first, SocketListener::getSocket());
+        }
+        else ++it;
     }
+
 }
 
 void Server::sendPendingPackets() {

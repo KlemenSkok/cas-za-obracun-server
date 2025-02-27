@@ -207,3 +207,53 @@ FlagData::FlagData()
     carrierID(0), 
     otherData(0), 
     timestamp(SDL_GetTicks()) {}
+
+// GameStateData
+
+int GameStateData::size() {
+    constexpr int size = 2 * sizeof(uint8_t) +  // game state + scores
+                        2 * sizeof(Uint32);     // elapsed time + server timestamp
+    return size;
+}
+
+void GameStateData::serialize(PacketData& packet) const {
+    packet.append(static_cast<uint8_t>(gameState));
+    packet.append(teamScores);
+    packet.append(elapsedTime);
+    packet.append(serverTime);
+}
+
+void GameStateData::deserialize(PacketData& packet, size_t offset) {
+    // game state
+    uint8_t state;
+    packet.getByOffset(state, sizeof(uint8_t), offset);
+    gameState = static_cast<GameState>(state);
+    offset += sizeof(uint8_t);
+    // team scores
+    packet.getByOffset(teamScores, sizeof(uint8_t), offset);
+    offset += sizeof(uint8_t);
+    // elapsed time
+    packet.getByOffset(elapsedTime, sizeof(Uint32), offset);
+    offset += sizeof(Uint32);
+    // server time
+    packet.getByOffset(serverTime, sizeof(Uint32), offset);
+    offset += sizeof(Uint32);
+}
+
+GameStateData& GameStateData::operator=(const GameStateData& other) {
+    if(this == &other)
+        return *this;
+
+    this->gameState = other.gameState;
+    this->teamScores = other.teamScores;
+    this->elapsedTime = other.elapsedTime;
+    this->serverTime = other.serverTime;
+
+    return *this;
+}
+
+GameStateData::GameStateData() 
+    : gameState(GameState::WAITING_FOR_PLAYERS), 
+    teamScores(0), 
+    elapsedTime(0), 
+    serverTime(SDL_GetTicks()) {}
