@@ -15,13 +15,6 @@ std::vector<std::unique_ptr<UDPmessage>> GameSession::pending_msgs;
 void GameSession::initialize() {
     this->flag = std::make_shared<Flag>(GAME_FLAG_HOME_POS_X, GAME_FLAG_HOME_POS_X);
     this->score = std::vector<uint8_t>(2, 0);
-    
-    this->sites[1] = std::make_shared<Site>(1);
-    this->sites[1]->setPosition(TEAM_SITE_1_POSITION);
-    this->sites[1]->setSize(TEAM_SITE_1_SIZE);
-    this->sites[2] = std::make_shared<Site>(2);
-    this->sites[2]->setPosition(TEAM_SITE_2_POSITION);
-    this->sites[2]->setSize(TEAM_SITE_2_SIZE);
 
     std::cout << "Waiting for players...\n";
 }
@@ -443,14 +436,16 @@ void GameSession::checkCollisions() {
         else ++it;
     }
 
-    // check if the flag is fully inside the carrier's team site
-    if(this->flag->isCaptured()) {
-        for(auto& [sid, s] : this->sites) {
-            if(this->players[this->flag->getCarrierID()]->getTeam() == sid) {
-                if(s->checkFlagCollision(this->flag->getPosition(), this->flag->getSize())) {
-                    // team ${sid} won the round
-                    this->endRound(sid);
-                    break;
+    if(this->currentState == GameState::ROUND_RUNNING) {
+        // check if the flag is fully inside the carrier's team site
+        if(this->flag->isCaptured()) {
+            for(auto& [sid, s] : MapData::sites) {
+                if(this->players[this->flag->getCarrierID()]->getTeam() == sid) {
+                    if(s->checkFlagCollision(this->flag->getPosition(), this->flag->getSize())) {
+                        // team ${sid} won the round
+                        this->endRound(sid);
+                        break;
+                    }
                 }
             }
         }
@@ -555,8 +550,12 @@ void GameSession::endRound(uint8_t winner) {
 
     this->score[winner - 1]++;
 
+    this->players[this->flag->getCarrierID()]->dropFlag();
+    this->flag->dropFlag();
+
     std::cout << "The round was won by team " << (int)winner << '\n';
-    
+
+
     if(this->currentRound == NUMBER_OF_ROUNDS) {
         this->finishGame();
     }

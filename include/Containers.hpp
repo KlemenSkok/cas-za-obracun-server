@@ -35,7 +35,7 @@ typedef struct {
 } PointF;
 
 typedef struct {
-    float x, y;
+    int x, y;
 } Point;
 
 // ---------------------------------------- //

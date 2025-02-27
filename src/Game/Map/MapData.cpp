@@ -11,10 +11,12 @@
 
 
 std::unordered_map<uint16_t, std::unordered_map<uint16_t, std::vector<Barrier>>> MapData::grid;
+std::unordered_map<uint8_t, std::shared_ptr<Site>> MapData::sites;
 
 
 void MapData::InitializeGrid() {
     grid.clear();
+    sites.clear();
 }
 
 void MapData::AddBarrier(Barrier& b) {
@@ -37,11 +39,11 @@ void MapData::AddBarrier(Barrier& b) {
 }
 
 /**
- * @brief Read a single barrier node from the XML file
+ * @brief Read a single Barrier node from the XML file
  * 
  * @param node The node to read from 
- * @param b The barrier to write to
- * @return int  Returns 0 on success, 1 on failure
+ * @param b The Barrier object to write to
+ * @return 0 on success, 1 on failure
  */
 int parseBarrierNode(tinyxml2::XMLNode* node, Barrier& b) {
     using namespace tinyxml2;
@@ -97,10 +99,72 @@ int parseBarrierNode(tinyxml2::XMLNode* node, Barrier& b) {
 }
 
 /**
+ * @brief Read a single Site node from the XML file
+ * 
+ * @param node The node to read from 
+ * @param b The Site object to write to
+ * @return 0 on success, 1 on failure
+ */
+int parseSiteNode(tinyxml2::XMLNode* node, Site& s) {
+    using namespace tinyxml2;
+    
+    PointF pos;
+    Point size;
+    int team;
+    int err = 0;
+
+    // parse barrier data
+    // position
+    XMLElement* n = node->FirstChildElement("position");
+    if(n == nullptr) {
+        Logger::warn((std::string("Missing site <position> data (line ") + std::to_string(node->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    err = n->QueryFloatAttribute("x", &pos.x);
+    err += n->QueryFloatAttribute("y", &pos.y);
+    if(err != 0) {
+        Logger::warn((std::string("Failed to parse site <position> (line ") + std::to_string(n->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    
+    // dimensions
+    n = node->FirstChildElement("size");
+    if(n == nullptr) {
+        Logger::warn((std::string("Missing site <size> data (line ") + std::to_string(node->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    err = n->QueryIntAttribute("w", &size.x);
+    err += n->QueryIntAttribute("h", &size.y);
+    if(err != 0) {
+        Logger::warn((std::string("Failed to parse site <size> (line ") + std::to_string(n->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    
+    // texture
+    n = node->FirstChildElement("team");
+    if(n == nullptr) {
+        Logger::warn((std::string("Missing site <team> data (line ") + std::to_string(node->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    err = n->QueryIntAttribute("id", &team);
+    if(err != 0) {
+        Logger::warn((std::string("Failed to parse site <team> (line ") + std::to_string(n->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+
+    s.setPosition(pos);
+    s.setSize(size);
+    s.setTeam(team);
+
+    return  EXIT_SUCCESS;
+}
+
+
+/**
  * @brief Attempt to load map data from an XML file.
  * 
  * @param filename Name of the XML file to load.
- * @return int Returns 0 on success, 1 in failure.
+ * @return 0 on success, 1 in failure.
  */
 int MapData::LoadMap(const char* filename) {
     //std::cout << "Loading map: " << filename << std::endl;
@@ -119,23 +183,42 @@ int MapData::LoadMap(const char* filename) {
     if(root == nullptr) {
         throw std::runtime_error("Failed to find <map> root element.");
     }
-    
-    // extract map barriers
-    for(XMLNode* node = root->FirstChildElement("barrier"); node != nullptr; node = node->NextSiblingElement("barrier")) {
-        
-        Barrier b;
-        if(parseBarrierNode(node, b) == 0) {
-            AddBarrier(b);
-            //std::cout << "Barrier added: " << b.getPosition().x << ", " << b.getPosition().y << std::endl;
-        }
 
+    XMLHandle rootHandle(root);
+    
+    XMLNode* barriers = rootHandle.FirstChildElement("barriers").FirstChildElement("barrier").ToNode();
+    if(barriers == nullptr) {
+        throw std::runtime_error("Failed to find barriers in the map data.");
     }
+    else {
+        // extract map barriers
+        for(XMLNode* node = barriers; node != nullptr; node = node->NextSiblingElement("barrier")) {
+            Barrier b;
+            if(parseBarrierNode(node, b) == 0) {
+                AddBarrier(b);
+            }
+        }
+    }
+
+    XMLNode* sites = rootHandle.FirstChildElement("sites").FirstChildElement("site").ToNode();
+    if(sites == nullptr) {
+        throw std::runtime_error("Failed to find sites in the map data.");
+    }
+    else {
+        for(XMLNode* node = sites; node != nullptr; node = node->NextSiblingElement("site")) {
+            Site s;
+            if(parseSiteNode(node, s) == 0) {
+                MapData::sites[s.getTeam()] = std::make_shared<Site>(s);
+            }
+        }
+    }
+    
 
     return EXIT_SUCCESS;
 }
 
 /**
- * @brief Check for collision between the player and the map barriers.
+ * @brief Check for collision between the local player and the map barriers.
  * 
  * @param player Player object to check collision for. Used to identify the overload for the LocalPlayer class.
  * @param correctedPos The position to check for collision. If a collision is detected, this will be updated to the corrected position.

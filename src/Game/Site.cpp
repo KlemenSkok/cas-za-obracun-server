@@ -21,6 +21,10 @@ Point Site::getSize() const {
     return this->size;
 }
 
+void Site::setTeam(uint8_t t) {
+    this->teamNumber = t;
+}
+
 uint8_t Site::getTeam() const {
     return this->teamNumber;
 }
