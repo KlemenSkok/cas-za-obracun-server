@@ -44,6 +44,11 @@ void GameSession::addClient(uint16_t id, IPaddress ip) {
     auto p = players[id];
     p->setTeam(teamNumber);
 
+    if(this->players.size() == MAX_PLAYERS) {
+        // start the round
+        this->startWaitingNextRound();
+    }
+
 }
 
 void GameSession::removeClient(uint16_t c_id) {
@@ -158,34 +163,37 @@ void GameSession::processPlayerUpdates(PacketData data) {
     auto p = players[c_id];
     p->importUpdates(pks, direction);
 
-    // check if the player shot a projectile
-    // player cant shoot while carrying the flag
-    if(p->shotProjectile() && (p->get_id() != this->flag->getCarrierID())) {
-        std::shared_ptr<Projectile> pr = std::make_shared<Projectile>(p->position.x, p->position.y, p->direction, p->get_id(), p->getTeam());
-        this->projectiles[pr->get_id()] = pr;
-    }
+    // shooting and flag are only enabled during the round
+    if(!(this->currentState == GameState::ROUND_RUNNING)) {
 
-    // check if player is trying to interact with the flag
-    if(p->isInteracting()) {
-        if(this->flag->isCaptured()) {
-            if(this->flag->getCarrierID() == p->get_id()) {
-                // release the flag
-                this->flag->dropFlag();
-                p->dropFlag();
+        // check if the player shot a projectile
+        // player cant shoot while carrying the flag
+        if(p->shotProjectile() && (p->get_id() != this->flag->getCarrierID())) {
+            std::shared_ptr<Projectile> pr = std::make_shared<Projectile>(p->position.x, p->position.y, p->direction, p->get_id(), p->getTeam());
+            this->projectiles[pr->get_id()] = pr;
+        }
+        
+        // check if player is trying to interact with the flag
+        if(p->isInteracting()) {
+            if(this->flag->isCaptured()) {
+                if(this->flag->getCarrierID() == p->get_id()) {
+                    // release the flag
+                    this->flag->dropFlag();
+                    p->dropFlag();
+                }
+            }
+            else if(!p->isPostureBroken()) { 
+                // check if the flag is in range to pick up
+                int dx = p->getPosition().x - this->flag->getPosition().x;
+                int dy = p->getPosition().y - this->flag->getPosition().y;
+                if((dx*dx + dy*dy) < GAME_FLAG_PICKUP_RANGE*GAME_FLAG_PICKUP_RANGE) {
+                    // pick up the flag
+                    this->flag->capture(p->get_id());
+                    p->captureFlag();
+                }
             }
         }
-        else if(!p->isPostureBroken()) { 
-            // check if the flag is in range to pick up
-            int dx = p->getPosition().x - this->flag->getPosition().x;
-            int dy = p->getPosition().y - this->flag->getPosition().y;
-            if((dx*dx + dy*dy) < GAME_FLAG_PICKUP_RANGE*GAME_FLAG_PICKUP_RANGE) {
-                // pick up the flag
-                this->flag->capture(p->get_id());
-                p->captureFlag();
-            }
-        }
     }
-
 }
 
 /**
@@ -373,6 +381,19 @@ void GameSession::checkCollisions() {
         else ++it;
     }
 
+    // check if the flag is fully inside the carrier's team site
+    if(this->flag->isCaptured()) {
+        for(auto& [sid, s] : this->sites) {
+            if(this->players[this->flag->getCarrierID()]->getTeam() == sid) {
+                if(s->checkFlagCollision(this->flag->getPosition(), this->flag->getSize())) {
+                    // team ${sid} won the round
+                    this->endRound(sid);
+                    break;
+                }
+            }
+        }
+    }
+
 }
 
 /**
@@ -380,20 +401,113 @@ void GameSession::checkCollisions() {
  */
 void GameSession::checkGameState() {
 
-    Uint32 deltaTime = SDL_GetTicks() - this->currentStateDuration;
+    Uint32 elapsedTime = SDL_GetTicks() - this->currentStateStartTime;
 
-    if(currentStateDuration >= getGameStateDuration(this->currentState)) {
-        // switch game states
+    if(elapsedTime >= getGameStateDuration(this->currentState)) { // the current state should end
+        // switch between game states
         switch(this->currentState) {
-            case GameState::BETWEEN_ROUNDS:
-                this->currentState = GameState::ROUND_RUNNING;
-                // reset all positions etc.
-
+            case GameState::WAITING_NEXT_ROUND:
+                this->startRound();
+                // todo: send out an update packet
+                break;
+            case GameState::ROUND_ENDING:
+                this->startWaitingNextRound();
                 break;
             case GameState::GAME_FINISHED:
-                // cleanup, kick all clients, close session
+                // cleanup, kick all clients, session closes automatically
+                // todo
+                std::cout << "The game has finished!\n";
+                break;
         }
     }
 
+}
+
+
+//
+// GAME STATE MANAGING
+//
+
+/**
+ * @brief Reset the round before the start of a round
+ */
+void GameSession::resetRound() {
+    
+    std::vector<std::vector<PointF>> start_positions = {
+        { PLAYERS_START_POS_T1 },
+        { PLAYERS_START_POS_T2 }
+    };
+    
+    // determine starting positions
+    for(auto& [pid, p] : this->players) {
+        p->reset();
+        if(!start_positions[p->getTeam() - 1].empty()) {
+            PointF start_pos = start_positions[p->getTeam() - 1].back();
+            start_positions[p->getTeam() - 1].pop_back();
+
+            p->setPosition(start_pos);
+        }
+        
+    }
+
+    this->projectiles.clear();
+    this->flag->reset();
+
+}
+
+/**
+ * @brief Start the 10s waiting period before a round
+ */
+void GameSession::startWaitingNextRound() {
+
+    // 10s pause before the start of the round. Players are freezed in place
+    this->currentState = GameState::WAITING_NEXT_ROUND;
+    this->currentStateStartTime = SDL_GetTicks();
+    this->resetRound();
+
+    std::cout << "Waiting for next round...\n";
+
+}
+
+
+void GameSession::finishGame() {
+
+    // Announce the winner, wait for players to leave.
+    this->currentState = GameState::GAME_FINISHED;
+    this->currentStateStartTime = SDL_GetTicks();
+
+    // every 1 second send out a new packet called data_packet::GameResults containing the winning team
+    // lasts 30s
+
+    int winner = (this->score[0] > this->score[1]) ? 1 : 2;
+    std::cout << "Team " << winner << " has won the game!\n";
+
+}
+
+void GameSession::endRound(uint8_t winner) {
+
+    this->score[winner - 1]++;
+
+    std::cout << "The round was won by team " << (int)winner << '\n';
+    
+    if(this->currentRound == NUMBER_OF_ROUNDS) {
+        this->finishGame();
+    }
+    else {
+        this->currentStateStartTime = SDL_GetTicks();
+        this->currentState = GameState::ROUND_ENDING;
+    }
+
+    
+}
+
+void GameSession::startRound() {
+
+    this->currentState = GameState::ROUND_RUNNING;
+
+    // start a new round
+    this->currentRound++;
+    this->currentStateStartTime = SDL_GetTicks();
+    std::cout << "Starting round " << (int)this->currentRound << '\n';
 
 }

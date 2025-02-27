@@ -43,6 +43,10 @@ PointF Flag::getPosition() const {
     return this->position;
 }
 
+Point Flag::getSize() const {
+    return this->size;
+}
+
 // set absolute position (this->x == p.x, this->y == p.y)
 void Flag::setPosition(const PointF& p) {
     this->position.x = p.x;

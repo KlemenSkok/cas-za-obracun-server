@@ -49,6 +49,7 @@ public:
 
     void update(float deltaTime);
     void dealPostureDamage();
+    void reset();
 
     data_packets::PlayerData dumpMovement(); // dump all data necessary for player movement
     void importUpdates(data_packets::PlayerKeyStates, float);
@@ -63,4 +64,5 @@ public:
     void setTeam(uint8_t t) { teamNumber = t; }
 
     PointF getPosition() const { return position; }
+    void setPosition(const PointF& p) { position = p; }
 };

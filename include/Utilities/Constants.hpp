@@ -64,3 +64,12 @@
 #define GAME_FLAG_HOME_POS_X 400 // [px] x, y
 #define GAME_FLAG_HOME_POS_Y 300 // [px] x, y
 #define GAME_FLAG_HOME_POS {GAME_FLAG_HOME_POS_X, GAME_FLAG_HOME_POS_Y} // [px] x, y
+
+
+// GAME STATE MANAGING
+
+#define PLAYERS_START_POS_T1 { 100.0f, -100.0f }, { 100.0f, 100.0f }
+#define PLAYERS_START_POS_T2 { -100.0f, -100.0f }, { -100.0f, 100.0f }
+#define FLAG_START_POS { 0.0f, 0.0f }
+
+#define NUMBER_OF_ROUNDS 5

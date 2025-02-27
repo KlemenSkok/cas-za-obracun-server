@@ -26,8 +26,9 @@ namespace SDLUtils {
 // game info constants
 enum class GameState: uint8_t {
     WAITING_FOR_PLAYERS = 0,
-    BETWEEN_ROUNDS,
+    WAITING_NEXT_ROUND,
     ROUND_RUNNING,
+    ROUND_ENDING,
     GAME_FINISHED
 };
 

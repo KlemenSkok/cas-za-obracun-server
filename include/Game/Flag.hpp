@@ -38,6 +38,7 @@ public:
     bool isHome() const;
     uint16_t getCarrierID() const;
     PointF getPosition() const;
+    Point getSize() const;
 
     void setPosition(const PointF&);
     void updatePosition(const PointF&);

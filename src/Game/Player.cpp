@@ -181,6 +181,18 @@ void Player::dealPostureDamage() {
     this->lastDamageTime = SDL_GetTicks();
 }
 
+void Player::reset() {
+    this->acceleration = { 0.0f, 0.0f };
+    this->position = { 0.0f, 0.0f };
+    this->direction = 0.0f;
+    this->posture = 100;
+    this->hasFlag = false;
+    this->projectileTriggered = false;
+    this->interactionTriggered = false;
+    this->isConcussed = false;
+    this->keyStates = KeyStates();
+}
+
 bool Player::isPostureBroken() const {
     return this->posture == 0;
 }
