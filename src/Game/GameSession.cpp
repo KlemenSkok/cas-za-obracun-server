@@ -16,7 +16,7 @@ void GameSession::initialize() {
     this->flag = std::make_shared<Flag>(GAME_FLAG_HOME_POS_X, GAME_FLAG_HOME_POS_X);
     this->score = std::vector<uint8_t>(2, 0);
 
-    std::cout << "Waiting for players...\n";
+    //std::cout << "Waiting for players...\n";
 }
 
 bool GameSession::isFull() const {
@@ -474,7 +474,7 @@ void GameSession::checkGameState() {
                 // cleanup, kick all clients, session closes automatically
                 this->forceGameStateUpdates();
 
-                std::cout << "The game has finished!\n";
+                //std::cout << "The game has finished!\n";
                 break;
         }
     }
@@ -526,7 +526,7 @@ void GameSession::startWaitingNextRound() {
     this->forceGameStateUpdates();
     this->resetRound();
 
-    std::cout << "Waiting for next round...\n";
+    //std::cout << "Waiting for next round...\n";
 
 }
 
@@ -542,7 +542,7 @@ void GameSession::finishGame() {
     // lasts 30s
 
     int winner = (this->score[0] > this->score[1]) ? 1 : 2;
-    std::cout << "Team " << winner << " has won the game!\n";
+    //std::cout << "Team " << winner << " has won the game!\n";
 
 }
 
@@ -553,7 +553,7 @@ void GameSession::endRound(uint8_t winner) {
     this->players[this->flag->getCarrierID()]->dropFlag();
     this->flag->dropFlag();
 
-    std::cout << "The round was won by team " << (int)winner << '\n';
+    //std::cout << "The round was won by team " << (int)winner << '\n';
 
 
     if(this->currentRound == NUMBER_OF_ROUNDS) {
@@ -581,7 +581,7 @@ void GameSession::startRound() {
     // start a new round
     this->currentRound++;
     this->currentStateStartTime = SDL_GetTicks();
-    std::cout << "Starting round " << (int)this->currentRound << '\n';
+    //std::cout << "Starting round " << (int)this->currentRound << '\n';
 
 }
 
