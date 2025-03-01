@@ -71,7 +71,7 @@
 #define PLAYERS_START_POS_T1 { 100.0f, -100.0f }, { 100.0f, 100.0f }
 #define PLAYERS_START_POS_T2 { -100.0f, -100.0f }, { -100.0f, 100.0f }
 
-#define NUMBER_OF_ROUNDS 5
+#define NUMBER_OF_ROUNDS 3
 
 #define GAME_STATE_UPDATE_PERIOD 1000 // [ms] send game state packet every 1 second
 

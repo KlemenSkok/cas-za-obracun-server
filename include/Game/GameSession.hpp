@@ -36,6 +36,7 @@ private:
     GameState currentState;
     Uint32 currentStateStartTime; // [ms] time since the start of this state
     Uint32 lastStateUpdateTime; // [ms]
+    bool _isEnding;
 
     uint8_t currentRound;
     std::vector<uint8_t> score;
@@ -49,7 +50,8 @@ public:
         lastUpdate(SDL_GetTicks()), 
         currentState(GameState::WAITING_FOR_PLAYERS), 
         currentRound(0),
-        lastStateUpdateTime(SDL_GetTicks())
+        lastStateUpdateTime(SDL_GetTicks()),
+        _isEnding(false)
     {
         this->initialize();
     }

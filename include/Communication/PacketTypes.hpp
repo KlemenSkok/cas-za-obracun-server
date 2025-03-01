@@ -35,6 +35,7 @@ namespace data_packets {
         PointF velocity;
         uint8_t keyStates;
         float direction;
+        uint8_t teamNumber;
 
         Uint32 timestamp; // server timestamp for client side interpolation
 

@@ -27,6 +27,7 @@ data_packets::PlayerData Player::dumpMovement() {
     data.keyStates = encodeKeyStates(this->keyStates);
     // direction
     data.direction = this->direction;
+    data.teamNumber = this->teamNumber;
 
     return data;
 }

@@ -17,6 +17,8 @@ void GameSession::initialize() {
     this->score = std::vector<uint8_t>(2, 0);
 
     //std::cout << "Waiting for players...\n";
+    // for debugging:
+    //this->currentState = GameState::WAITING_NEXT_ROUND;
 }
 
 bool GameSession::isFull() const {
@@ -24,7 +26,7 @@ bool GameSession::isFull() const {
 }
 
 bool GameSession::isEnding() const {
-    return this->currentState == GameState::GAME_FINISHED;
+    return this->_isEnding;
 }
 
 bool GameSession::acceptsPlayers() const {
@@ -63,10 +65,6 @@ void GameSession::addClient(uint16_t id, IPaddress ip) {
 }
 
 void GameSession::removeClient(uint16_t c_id) {
-    
-    if(clients.find(c_id) != clients.end()) {
-        //Logger::info(("Removed client. ID: " + std::to_string(c_id)).c_str());
-    }
 
     if(this->flag->getCarrierID() == c_id) {
         this->flag->dropFlag();
@@ -251,6 +249,8 @@ void GameSession::forceGameStateUpdates() {
     for(auto& p : players) {
         GameSession::sendGameStateToClient(p.first);
     }
+
+    //std::cout << "current state: " << (int)this->currentState << '\n';
 }
 
 void GameSession::sendPlayerStatesToClient(uint16_t c_id) {
@@ -357,9 +357,11 @@ void GameSession::sendGameStateToClient(uint16_t c_id) {
 // sending game state updates to clients
 void GameSession::broadcastUpdates() {
 
-    // send out data to players
-    for(auto& p : players) {
-        GameSession::sendGameUpdatesToClient(p.first);
+    if(this->currentState != GameState::GAME_FINISHED) {
+        // send out data to players
+        for(auto& p : players) {
+            GameSession::sendGameUpdatesToClient(p.first);
+        }
     }
 
     // send games state updates
@@ -412,7 +414,6 @@ void GameSession::checkCollisions() {
             if(it->second->get_parent_team() != p.second->getTeam() && (dx*dx + dy*dy) < (PLAYER_RADIUS*PLAYER_RADIUS + PROJECTILE_RADIUS*PROJECTILE_RADIUS)) {
                 // destroy the projectile
                 it = this->projectiles.erase(it);
-                // todo: deal posture damage to player
                 p.second->dealPostureDamage();
 
                 // player drops the flag on posture break
@@ -465,7 +466,6 @@ void GameSession::checkGameState() {
         switch(this->currentState) {
             case GameState::WAITING_NEXT_ROUND:
                 this->startRound();
-                // todo: send out an update packet
                 break;
             case GameState::ROUND_ENDING:
                 this->startWaitingNextRound();
@@ -473,7 +473,7 @@ void GameSession::checkGameState() {
             case GameState::GAME_FINISHED:
                 // cleanup, kick all clients, session closes automatically
                 this->forceGameStateUpdates();
-
+                this->_isEnding = true;
                 //std::cout << "The game has finished!\n";
                 break;
         }
@@ -571,6 +571,7 @@ void GameSession::endRound(uint8_t winner) {
 void GameSession::startRound() {
 
     this->currentState = GameState::ROUND_RUNNING;
+    this->currentStateStartTime = SDL_GetTicks();
     this->forceGameStateUpdates();
 
     // unfreeze players
@@ -580,7 +581,6 @@ void GameSession::startRound() {
 
     // start a new round
     this->currentRound++;
-    this->currentStateStartTime = SDL_GetTicks();
     //std::cout << "Starting round " << (int)this->currentRound << '\n';
 
 }
