@@ -57,7 +57,7 @@ void GameSession::addClient(uint16_t id, IPaddress ip) {
     auto p = players[id];
     p->setTeam(teamNumber);
 
-    if(this->players.size() == MAX_PLAYERS) {
+    if(this->players.size() == 1/*MAX_PLAYERS*/) {
         // start the round
         this->startWaitingNextRound();
     }

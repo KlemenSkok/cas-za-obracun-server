@@ -51,6 +51,7 @@
 #define PLAYER_HEAL_DELAY 5000 // on posture broken, wait 3s before healing
 #define PLAYER_HEAL_PERIOD 1000 // once healing, only heal every .5s
 
+
 // -- PROJECTILES -- //
 #define PROJECTILE_RADIUS 10 // px
 #define PROJECTILE_THROW_COOLDOWN 1000 // [ms]
@@ -59,24 +60,24 @@
 #define PROJECTILE_POSTURE_DAMAGE 22
 
 // -- FLAGS -- //
-#define GAME_FLAG_SIZE {75, 50} // [px] w, h
+#define GAME_FLAG_SIZE { 100, 60 } // [px] w, h
 #define GAME_FLAG_PICKUP_RANGE 100 // [px] from center of the flag
-#define GAME_FLAG_HOME_POS_X 0.0f // [px] x, y
-#define GAME_FLAG_HOME_POS_Y 0.0f // [px] x, y
+#define GAME_FLAG_HOME_POS_X 1480 // [px] x, y
+#define GAME_FLAG_HOME_POS_Y 140 // [px] x, y
 #define GAME_FLAG_HOME_POS {GAME_FLAG_HOME_POS_X, GAME_FLAG_HOME_POS_Y} // [px] x, y
 
 
 // GAME STATE MANAGING
 
-#define PLAYERS_START_POS_T1 { 100.0f, -100.0f }, { 100.0f, 100.0f }
-#define PLAYERS_START_POS_T2 { -100.0f, -100.0f }, { -100.0f, 100.0f }
+#define PLAYERS_START_POS_T1 { 1084, 670 }, { 1084, 775 }
+#define PLAYERS_START_POS_T2 {1940, 670}, {1940, 775}
 
 #define NUMBER_OF_ROUNDS 3
 
 #define GAME_STATE_UPDATE_PERIOD 1000 // [ms] send game state packet every 1 second
 
 // sites for flag retrieval
-#define TEAM_SITE_1_POSITION { -200.0f, -50.0f }
-#define TEAM_SITE_1_SIZE { 100, 100 }
-#define TEAM_SITE_2_POSITION { 200.0f, -50.0f }
-#define TEAM_SITE_2_SIZE { 100, 100 }
+//#define TEAM_SITE_1_POSITION { -200.0f, -50.0f }
+//#define TEAM_SITE_1_SIZE { 100, 100 }
+//#define TEAM_SITE_2_POSITION { 200.0f, -50.0f }
+//#define TEAM_SITE_2_SIZE { 100, 100 }

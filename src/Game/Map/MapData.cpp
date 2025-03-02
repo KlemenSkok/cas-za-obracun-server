@@ -31,8 +31,8 @@ void MapData::AddBarrier(Barrier& b) {
     if(int(pos.x + b.getWidth()) % GRID_CELL_SIZE == 0) end_x++;
     if(int(pos.y + b.getHeight()) % GRID_CELL_SIZE == 0) end_y++;
 
-    for(int x = start_x; x < end_x; x++) {
-        for(int y = start_y; y < end_y; y++) {
+    for(int x = start_x; x <= end_x; x++) {
+        for(int y = start_y; y <= end_y; y++) {
             grid[x][y].push_back(b);
         }
     }
@@ -90,6 +90,11 @@ int parseBarrierNode(tinyxml2::XMLNode* node, Barrier& b) {
         Logger::warn((std::string("Failed to parse barrier <texture> (line ") + std::to_string(n->GetLineNum()) + ").").c_str());
         return EXIT_FAILURE;
     }
+
+    // boxes in the file have origin in the bottom left corner
+    // we need to adjust the position to the top left corner
+
+    pos.y -= h;
 
     b.setPosition(pos.x, pos.y);
     b.setDimensions(w, h);
@@ -151,6 +156,11 @@ int parseSiteNode(tinyxml2::XMLNode* node, Site& s) {
         Logger::warn((std::string("Failed to parse site <team> (line ") + std::to_string(n->GetLineNum()) + ").").c_str());
         return EXIT_FAILURE;
     }
+
+    // boxes in the file have origin in the bottom left corner
+    // we need to adjust the position to the top left corner
+
+    pos.y -= size.y;
 
     s.setPosition(pos);
     s.setSize(size);
