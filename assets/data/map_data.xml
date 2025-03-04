@@ -1,264 +1,272 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map>
+    <!-- barriers -->
     <barriers>
+        <!-- wall (01) -->
         <barrier>
             <position x="1128" y="65" />
-            <size w="800" h="20" />
-            <texture id="001" />
+            <size w="800" h="36" />
+            <texture id="01" />
         </barrier>
         <barrier>
-            <position x="1101" y="465" />
-            <size w="20" h="393" />
-            <texture id="001" />
+            <position x="1085" y="465" />
+            <size w="36" h="393" />
+            <texture id="01" />
         </barrier>
         <barrier>
             <position x="1935" y="465" />
-            <size w="20" h="393" />
-            <texture id="001" />
+            <size w="36" h="393" />
+            <texture id="01" />
         </barrier>
         <barrier>
             <position x="458" y="508" />
-            <size w="620" h="20" />
-            <texture id="001" />
+            <size w="620" h="36" />
+            <texture id="01" />
         </barrier>
+        <barrier>
+            <position x="1978" y="508" />
+            <size w="620" h="36" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="415" y="465" />
+            <size w="36" h="184" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="2605" y="465" />
+            <size w="36" h="184" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="88" y="274" />
+            <size w="320" h="36" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="45" y="1025" />
+            <size w="36" h="744" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="88" y="1068" />
+            <size w="320" h="36" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="415" y="1025" />
+            <size w="36" h="125" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="458" y="893" />
+            <size w="620" h="36" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="1085" y="945" />
+            <size w="36" h="45" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="1128" y="988" />
+            <size w="800" h="36" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="1935" y="945" />
+            <size w="36" h="45" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="1978" y="893" />
+            <size w="620" h="36" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="2605" y="1025" />
+            <size w="36" h="125" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="2648" y="1068" />
+            <size w="320" h="36" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="2648" y="274" />
+            <size w="320" h="36" />
+            <texture id="01" />
+        </barrier>
+        <barrier>
+            <position x="2975" y="1025" />
+            <size w="36" h="744" />
+            <texture id="01" />
+        </barrier>
+        
+        <!-- wall_pillar (02) -->
         <barrier>
             <position x="1078" y="72" />
             <size w="50" h="50" />
-            <texture id="002" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="1928" y="72" />
             <size w="50" h="50" />
-            <texture id="002" />
-        </barrier>
-        <barrier>
-            <position x="1978" y="508" />
-            <size w="620" h="20" />
-            <texture id="001" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="1928" y="515" />
             <size w="50" h="50" />
-            <texture id="002" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="1078" y="515" />
             <size w="50" h="50" />
-            <texture id="002" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="408" y="515" />
             <size w="50" h="50" />
-            <texture id="002" />
-        </barrier>
-        <barrier>
-            <position x="415" y="465" />
-            <size w="20" h="184" />
-            <texture id="001" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="408" y="281" />
             <size w="50" h="50" />
-            <texture id="002" />
+            <texture id="02" />
         </barrier>
         <barrier>
-            <position x="2648" y="465" />
+            <position x="2598" y="515" />
             <size w="50" h="50" />
-            <texture id="002" />
+            <texture id="02" />
         </barrier>
         <barrier>
-            <position x="2641" y="281" />
-            <size w="20" h="184" />
-            <texture id="001" />
-        </barrier>
-        <barrier>
-            <position x="2648" y="231" />
+            <position x="2598" y="281" />
             <size w="50" h="50" />
-            <texture id="002" />
-        </barrier>
-        <barrier>
-            <position x="88" y="274" />
-            <size w="320" h="20" />
-            <texture id="001" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="38" y="281" />
             <size w="50" h="50" />
-            <texture id="002" />
-        </barrier>
-        <barrier>
-            <position x="61" y="1025" />
-            <size w="20" h="744" />
-            <texture id="001" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="38" y="1075" />
             <size w="50" h="50" />
-            <texture id="002" />
-        </barrier>
-        <barrier>
-            <position x="88" y="1052" />
-            <size w="320" h="20" />
-            <texture id="001" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="408" y="1075" />
             <size w="50" h="50" />
-            <texture id="002" />
-        </barrier>
-        <barrier>
-            <position x="415" y="1025" />
-            <size w="20" h="125" />
-            <texture id="001" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="408" y="900" />
             <size w="50" h="50" />
-            <texture id="002" />
-        </barrier>
-        <barrier>
-            <position x="458" y="877" />
-            <size w="620" h="20" />
-            <texture id="001" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="1078" y="900" />
             <size w="50" h="50" />
-            <texture id="002" />
-        </barrier>
-        <barrier>
-            <position x="1101" y="945" />
-            <size w="20" h="45" />
-            <texture id="001" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="1078" y="995" />
             <size w="50" h="50" />
-            <texture id="002" />
-        </barrier>
-        <barrier>
-            <position x="1128" y="972" />
-            <size w="800" h="20" />
-            <texture id="001" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="1928" y="995" />
             <size w="50" h="50" />
-            <texture id="002" />
-        </barrier>
-        <barrier>
-            <position x="1935" y="945" />
-            <size w="20" h="45" />
-            <texture id="001" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="1928" y="900" />
             <size w="50" h="50" />
-            <texture id="002" />
-        </barrier>
-        <barrier>
-            <position x="1978" y="877" />
-            <size w="620" h="20" />
-            <texture id="001" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="2598" y="900" />
             <size w="50" h="50" />
-            <texture id="002" />
-        </barrier>
-        <barrier>
-            <position x="2621" y="1025" />
-            <size w="20" h="125" />
-            <texture id="001" />
+            <texture id="02" />
         </barrier>
         <barrier>
             <position x="2598" y="1075" />
             <size w="50" h="50" />
-            <texture id="002" />
+            <texture id="02" />
         </barrier>
         <barrier>
-            <position x="2648" y="1052" />
-            <size w="320" h="20" />
-            <texture id="001" />
-        </barrier>
-        <barrier>
-            <position x="2648" y="274" />
-            <size w="320" h="20" />
-            <texture id="001" />
-        </barrier>
-        <barrier>
-            <position x="3018" y="231" />
+            <position x="2968" y="281" />
             <size w="50" h="50" />
-            <texture id="002" />
+            <texture id="02" />
         </barrier>
         <barrier>
-            <position x="3018" y="1025" />
+            <position x="2968" y="1075" />
             <size w="50" h="50" />
-            <texture id="002" />
+            <texture id="02" />
         </barrier>
+
+        
+        <!-- sofa (03) -->
         <barrier>
-            <position x="2975" y="1025" />
-            <size w="20" h="744" />
-            <texture id="001" />
-        </barrier>
-        <barrier>
-            <position x="1271" y="650" />
-            <size w="60" h="60" />
+            <position x="1212" y="947" />
+            <size w="200" h="90" />
             <texture id="003" />
         </barrier>
         <barrier>
-            <position x="1499" y="650" />
-            <size w="60" h="60" />
+            <position x="1434" y="947" />
+            <size w="200" h="90" />
             <texture id="003" />
         </barrier>
         <barrier>
-            <position x="1740" y="650" />
-            <size w="60" h="60" />
+            <position x="1655" y="947" />
+            <size w="200" h="90" />
             <texture id="003" />
         </barrier>
+        
+        <!-- pillar (04) -->
         <barrier>
-            <position x="1479" y="469" />
-            <size w="102" h="194" />
-            <texture id="004" />
+            <position x="1271" y="710" />
+            <size w="60" h="60" />
+            <texture id="04" />
+        </barrier>
+        <barrier>
+            <position x="1499" y="710" />
+            <size w="60" h="60" />
+            <texture id="04" />
+        </barrier>
+        <barrier>
+            <position x="1740" y="710" />
+            <size w="60" h="60" />
+            <texture id="04" />
+        </barrier>
+        
+        <!-- crate (05) -->
+        <barrier>
+            <position x="1470" y="510" />
+            <size w="120" h="240" />
+            <texture id="05" />
         </barrier>
         <barrier>
             <position x="845" y="628" />
             <size w="120" h="120" />
-            <texture id="004" />
+            <texture id="05" />
         </barrier>
         <barrier>
             <position x="584" y="857" />
             <size w="120" h="120" />
-            <texture id="004" />
+            <texture id="05" />
         </barrier>
         <barrier>
             <position x="2097" y="857" />
             <size w="120" h="120" />
-            <texture id="004" />
+            <texture id="05" />
         </barrier>
         <barrier>
             <position x="2377" y="628" />
             <size w="120" h="120" />
-            <texture id="004" />
+            <texture id="05" />
         </barrier>
-
-        <!-- sofas -->
-        <barrier>
-            <position x="1187" y="947" />
-            <size w="217" h="100" />
-            <texture id="005" />
-        </barrier>
-        <barrier>
-            <position x="1423" y="947" />
-            <size w="217" h="100" />
-            <texture id="005" />
-        </barrier>
-        <barrier>
-            <position x="1423" y="947" />
-            <size w="217" h="100" />
-            <texture id="005" />
-        </barrier>
-
     </barriers>
 
     <!-- sites -->

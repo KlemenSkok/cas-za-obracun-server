@@ -239,6 +239,7 @@ bool MapData::CheckCollision(const Player& player, PointF& correctedPos) {
     int p_grid_x = getGridKey(correctedPos.x);
     int p_grid_y = getGridKey(correctedPos.y);
 
+    bool isColliding = false;
     for(int x = p_grid_x - 1; x <= p_grid_x + 1; x++) {
         for(int y = p_grid_y - 1; y <= p_grid_y + 1; y++) {
 
@@ -273,12 +274,12 @@ bool MapData::CheckCollision(const Player& player, PointF& correctedPos) {
                         correctedPos.x += PLAYER_RADIUS;
                     }
 
-                    return true;
+                    isColliding = true;
                 }
             }
         }
     }
-    return false;
+    return isColliding;
 }
 
 
