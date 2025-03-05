@@ -52,6 +52,8 @@ data_packets::ProjectileData Projectile::dumpData() {
     // velocity
     data.velocity.x = this->velocity.x;
     data.velocity.y = this->velocity.y;
+    // parent team
+    data.parentTeam = this->parent_team;
 
     return data;
 }

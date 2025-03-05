@@ -39,7 +39,7 @@
 
 // -- PLAYERS -- //
 // size
-#define PLAYER_RADIUS 20 // px
+#define PLAYER_RADIUS 30 // px
 // movement
 #define PLAYER_MAX_SPEED 100.0f // [px/s]
 #define PLAYER_MAX_SPEED_SLOWED 37.5f // [px/s]
@@ -53,7 +53,7 @@
 
 
 // -- PROJECTILES -- //
-#define PROJECTILE_RADIUS 10 // px
+#define PROJECTILE_RADIUS 15 // px
 #define PROJECTILE_THROW_COOLDOWN 500 // [ms]
 #define PROJECTILE_VELOCITY 500.0f
 #define PROJECTILE_RANGE 1770*1770 // 2500 px in any direction

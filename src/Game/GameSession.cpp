@@ -31,7 +31,7 @@ bool GameSession::isEnding() const {
 
 bool GameSession::acceptsPlayers() const {
     // zaenkrat gledamo samo na stevilo igralcev v igri
-    return !this->isFull();
+    return !this->isFull() && this->currentState != GameState::ROUND_RUNNING;
 }
 
 uint8_t GameSession::size() const {

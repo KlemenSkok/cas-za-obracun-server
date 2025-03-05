@@ -110,9 +110,10 @@ void PlayerKeyStates::deserialize(PacketData& packet, size_t offset) {
 // ProjectileData
 
 int ProjectileData::size() {
-    constexpr int size = sizeof(uint16_t)
-                        + sizeof(float) * 4
-                        + sizeof(Uint32);
+    constexpr int size = sizeof(uint16_t)       // id
+                        + sizeof(float) * 4     // position + velocity
+                        + sizeof(uint8_t)       // parentTeam
+                        + sizeof(Uint32);       // server timestamp
     return size;
 }
 
@@ -122,6 +123,7 @@ void ProjectileData::serialize(PacketData& packet) const {
     packet.append(position.y);
     packet.append(velocity.x);
     packet.append(velocity.y);
+    packet.append(parentTeam);
     packet.append(timestamp);
 }
 
@@ -137,6 +139,9 @@ void ProjectileData::deserialize(PacketData& packet, size_t offset) {
     packet.getByOffset(velocity.x, sizeof(float), offset);
     packet.getByOffset(velocity.y, sizeof(float), offset + sizeof(float));
     offset += sizeof(float) * 2;
+    // parentTeam
+    packet.getByOffset(parentTeam, sizeof(uint8_t), offset);
+    offset += sizeof(uint8_t);
     // timestamp
     packet.getByOffset(timestamp, sizeof(Uint32), offset);
     offset += sizeof(Uint32);
@@ -151,6 +156,7 @@ ProjectileData& ProjectileData::operator=(const ProjectileData& other) {
     this->position.y = other.position.y;
     this->velocity.x = other.velocity.x;
     this->velocity.y = other.velocity.y;
+    this->parentTeam = other.parentTeam;
     this->timestamp = other.timestamp;
 
     return *this;
@@ -160,6 +166,7 @@ ProjectileData::ProjectileData()
     : id(0), 
     position{0.0f, 0.0f}, 
     velocity{0.0f, 0.0f}, 
+    parentTeam(0),
     timestamp(SDL_GetTicks()) {}
 
 // FlagData

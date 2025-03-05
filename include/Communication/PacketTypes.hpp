@@ -60,6 +60,7 @@ namespace data_packets {
         uint16_t id;
         PointF position;
         PointF velocity;
+        uint8_t parentTeam;
 
         Uint32 timestamp; // server timestamp for client side interpolation
 
