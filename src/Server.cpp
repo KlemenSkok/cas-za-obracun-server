@@ -155,10 +155,10 @@ void Server::processNewPackets() {
                 recv_msg->len = d.size();
                 recv_msg->data = d.getRawData();
                 
-                addMessageToQueue(std::move(recv_msg));
-
                 Logger::info(("New client connected. Client ID: " + std::to_string(client_id) + ", Session ID: " + std::to_string(session_id)).c_str());
+                std::cout << "IP: " << formatIP(recv_msg->ip->host) << ":" << SDLNet_Read16(&recv_msg->ip->host) << "\n\n";
 
+                addMessageToQueue(std::move(recv_msg));
                 //if(std::shared_ptr<Client> c_ptr = _sessions[session_id]->getClient(client_id).lock()) {
                 //    std::cout << "Last packet time: " << c_ptr->getLastPacketID() << '\n';
                 //}
