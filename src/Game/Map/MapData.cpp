@@ -4,13 +4,14 @@
 #include "XML/tinyxml2.h"
 #include "Game/Map/MapData.hpp"
 #include "Utilities/Constants.hpp"
+#include "Game/Map/Trap.hpp"
 
 #include <exception>
 #include <cmath>
 
 
 
-std::unordered_map<uint16_t, std::unordered_map<uint16_t, std::vector<Barrier>>> MapData::grid;
+std::unordered_map<uint16_t, std::unordered_map<uint16_t, std::vector<std::shared_ptr<MapObject>>>> MapData::grid;
 std::unordered_map<uint8_t, std::shared_ptr<Site>> MapData::sites;
 
 
@@ -33,7 +34,7 @@ void MapData::AddBarrier(Barrier& b) {
 
     for(int x = start_x; x <= end_x; x++) {
         for(int y = start_y; y <= end_y; y++) {
-            grid[x][y].push_back(b);
+            grid[x][y].push_back(std::make_shared<MapObject>(b));
         }
     }
 }
@@ -234,7 +235,7 @@ int MapData::LoadMap(const char* filename) {
  * @param correctedPos The position to check for collision. If a collision is detected, this will be updated to the corrected position.
  * @return `true` if collision was detected, `false` otherwise.
  */
-bool MapData::CheckCollision(const Player& player, PointF& correctedPos) {
+bool MapData::CheckCollision(Player& player, PointF& correctedPos) {
     // player grid position
     int p_grid_x = getGridKey(correctedPos.x);
     int p_grid_y = getGridKey(correctedPos.y);
@@ -247,34 +248,41 @@ bool MapData::CheckCollision(const Player& player, PointF& correctedPos) {
                 continue; // skip; nothing to check in this cell
             }
 
-            for(const Barrier& barrier : grid[x][y]) {
+            for(const auto& object : grid[x][y]) {
+                // check collisions with barriers (where player's position need to be corrected)
+                if(object->getType() == MapObjType::BARRIER) {
 
-                float closestX = std::max(barrier.getPosition().x, 
-                                            std::min(correctedPos.x, barrier.getPosition().x + barrier.getWidth()));
-                float closestY = std::max(barrier.getPosition().y, 
-                                            std::min(correctedPos.y, barrier.getPosition().y + barrier.getHeight()));
+                    float closestX = std::max(object->getPosition().x, 
+                                                std::min(correctedPos.x, object->getPosition().x + object->getWidth()));
+                    float closestY = std::max(object->getPosition().y, 
+                                                std::min(correctedPos.y, object->getPosition().y + object->getHeight()));
 
-                float distanceX = correctedPos.x - closestX;
-                float distanceY = correctedPos.y - closestY;
-                float distanceSQ = (distanceX * distanceX) + (distanceY * distanceY);
-                constexpr int playerRad = PLAYER_RADIUS * PLAYER_RADIUS;
+                    float distanceX = correctedPos.x - closestX;
+                    float distanceY = correctedPos.y - closestY;
+                    float distanceSQ = (distanceX * distanceX) + (distanceY * distanceY);
+                    constexpr int playerRad = PLAYER_RADIUS * PLAYER_RADIUS;
+                    
+                    if(distanceSQ < playerRad) {
+                        // collision detected
+                        float distance = std::sqrt(distanceSQ);
+                        float overlap = PLAYER_RADIUS - distance;
 
-                if(distanceSQ < playerRad) {
-                    // collision detected
-                    float distance = std::sqrt(distanceSQ);
-                    float overlap = PLAYER_RADIUS - distance;
-
-                    if(distance > 0) {
-                        // push player away from the barrier
-                        correctedPos.x += (distanceX / distance) * overlap;
-                        correctedPos.y += (distanceY / distance) * overlap;
+                        if(distance > 0) {
+                            // push player away from the barrier
+                            correctedPos.x += (distanceX / distance) * overlap;
+                            correctedPos.y += (distanceY / distance) * overlap;
+                        }
+                        else {
+                            // edge case: player is exactly inside the barrier
+                            correctedPos.x += PLAYER_RADIUS;
+                        }
+                        
+                        isColliding = true;
                     }
-                    else {
-                        // edge case: player is exactly inside the barrier
-                        correctedPos.x += PLAYER_RADIUS;
-                    }
-
-                    isColliding = true;
+                }
+                // check is the player is walking on the trap (where movement settings should be modified for the next update)
+                else if(object->getType() == MapObjType::TRAP) {
+                    
                 }
             }
         }
@@ -295,12 +303,17 @@ bool MapData::CheckCollision(const Projectile& projectile, PointF& correctedPos)
                 continue; // skip; nothing to check in this cell
             }
 
-            for(const Barrier& barrier : grid[x][y]) {
+            for(const auto& object : grid[x][y]) {
 
-                float closestX = std::max(barrier.getPosition().x, 
-                                            std::min(correctedPos.x, barrier.getPosition().x + barrier.getWidth()));
-                float closestY = std::max(barrier.getPosition().y, 
-                                            std::min(correctedPos.y, barrier.getPosition().y + barrier.getHeight()));
+                // only check collisions for collidable map barriers, skip 
+                if(object->getType() != MapObjType::BARRIER) {
+                    continue;
+                }
+
+                float closestX = std::max(object->getPosition().x, 
+                                            std::min(correctedPos.x, object->getPosition().x + object->getWidth()));
+                float closestY = std::max(object->getPosition().y, 
+                                            std::min(correctedPos.y, object->getPosition().y + object->getHeight()));
 
                 float distanceX = correctedPos.x - closestX;
                 float distanceY = correctedPos.y - closestY;

@@ -10,6 +10,6 @@ class Barrier : public MapObject {
 
 public:
 
-    Barrier() = default;
+    Barrier() : MapObject(MapObjType::BARRIER) {}
 
 };

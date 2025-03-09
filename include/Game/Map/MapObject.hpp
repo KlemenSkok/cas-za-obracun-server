@@ -5,6 +5,14 @@
 
 #include "Containers.hpp"
 
+#include <cstdint>
+
+
+enum class MapObjType: uint8_t {
+    BARRIER = 0,
+    TRAP
+};
+
 
 // base class for all static map objects
 class MapObject {
@@ -16,9 +24,12 @@ protected:
 
     int texture_id;
 
+    MapObjType type;
+
 public:
 
-    MapObject() = default;
+    MapObject(MapObjType t): type(t) {}
+    MapObjType getType() const;
 
     virtual void setPosition(float x, float y);
     virtual void setDimensions(int w, int h);
@@ -29,6 +40,9 @@ public:
 
 };
 
+inline MapObjType MapObject::getType() const {
+    return this->type;
+}
 
 inline void MapObject::setPosition(float x, float y) {
     this->position = {x, y};

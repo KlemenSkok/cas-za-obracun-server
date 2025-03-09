@@ -282,4 +282,28 @@
             <team id="2" />
         </site>
     </sites>
+
+    <!-- traps -->
+    <traps>
+        <!-- ice trap -->
+        <trap>
+            <position x="1457" y="637" />
+            <size w="150" h="114" />
+            <texture id="06" />
+            <type name="ice" />
+        </trap>
+        <!-- sand trap -->
+        <trap>
+            <position x="1003" y="726" />
+            <size w="94" h="138" />
+            <texture id="07" />
+            <type name="sand" />
+        </trap>
+        <trap>
+            <position x="1946" y="626" />
+            <size w="151" h="98" />
+            <texture id="07" />
+            <type name="sand" />
+        </trap>
+    </traps>
 </map>
