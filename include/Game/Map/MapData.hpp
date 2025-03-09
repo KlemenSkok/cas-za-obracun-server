@@ -6,6 +6,7 @@
 #include "Barrier.hpp"
 #include "Game/Site.hpp"
 #include "Game/Player.hpp"
+#include "Game/Map/Trap.hpp"
 #include "Game/Projectile.hpp"
 #include "Game/Map/MapObject.hpp"
 
@@ -28,6 +29,7 @@ public:
 
     static void InitializeGrid();
     static void AddBarrier(Barrier&);
+    static void AddTrap(Trap&);
     static int LoadMap(const char*);
     static bool CheckCollision(Player&, PointF&);
     static bool CheckCollision(const Projectile&, PointF&);

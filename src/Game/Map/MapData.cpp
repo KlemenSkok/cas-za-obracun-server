@@ -39,6 +39,26 @@ void MapData::AddBarrier(Barrier& b) {
     }
 }
 
+void MapData::AddTrap(Trap& b) {
+    auto pos = b.getPosition();
+    
+    int start_x = getGridKey(pos.x);
+    int start_y = getGridKey(pos.y);
+    int end_x = getGridKey(pos.x + b.getWidth());
+    int end_y = getGridKey(pos.y + b.getHeight());
+
+    // edge case: when barrier border is on the edge of a cell, expand the object territory
+    if(int(pos.x + b.getWidth()) % GRID_CELL_SIZE == 0) end_x++;
+    if(int(pos.y + b.getHeight()) % GRID_CELL_SIZE == 0) end_y++;
+
+
+    for(int x = start_x; x <= end_x; x++) {
+        for(int y = start_y; y <= end_y; y++) {
+            grid[x][y].push_back(std::make_shared<Trap>(b));
+        }
+    }
+}
+
 /**
  * @brief Read a single Barrier node from the XML file
  * 
@@ -172,6 +192,90 @@ int parseSiteNode(tinyxml2::XMLNode* node, Site& s) {
 
 
 /**
+ * @brief Read a single Trap node from the XML file
+ * 
+ * @param node The node to read from 
+ * @param b The Trap object to write to
+ * @return 0 on success, 1 on failure
+ */
+int parseTrapNode(tinyxml2::XMLNode* node, Trap& s) {
+    using namespace tinyxml2;
+    
+    PointF pos;
+    Point size;
+    int texture_id;
+    char* type;
+    int err = 0;
+
+    // parse barrier data
+    // position
+    XMLElement* n = node->FirstChildElement("position");
+    if(n == nullptr) {
+        Logger::warn((std::string("Missing trap <position> data (line ") + std::to_string(node->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    err = n->QueryFloatAttribute("x", &pos.x);
+    err += n->QueryFloatAttribute("y", &pos.y);
+    if(err != 0) {
+        Logger::warn((std::string("Failed to parse trap <position> (line ") + std::to_string(n->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    
+    // dimensions
+    n = node->FirstChildElement("size");
+    if(n == nullptr) {
+        Logger::warn((std::string("Missing trap <size> data (line ") + std::to_string(node->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    err = n->QueryIntAttribute("w", &size.x);
+    err += n->QueryIntAttribute("h", &size.y);
+    if(err != 0) {
+        Logger::warn((std::string("Failed to parse trap <size> (line ") + std::to_string(n->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    
+    // texture
+    n = node->FirstChildElement("texture");
+    if(n == nullptr) {
+        Logger::warn((std::string("Missing trap <texture> data (line ") + std::to_string(node->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    err = n->QueryIntAttribute("id", &texture_id);
+    if(err != 0) {
+        Logger::warn((std::string("Failed to parse trap <texture> (line ") + std::to_string(n->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+
+    // type
+    n = node->FirstChildElement("type");
+    if(n == nullptr) {
+        Logger::warn((std::string("Missing trap <type> data (line ") + std::to_string(node->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+    err = n->QueryStringAttribute("name", (const char**)&type);
+    if(err != 0) {
+        Logger::warn((std::string("Failed to parse trap <type> (line ") + std::to_string(n->GetLineNum()) + ").").c_str());
+        return EXIT_FAILURE;
+    }
+
+
+
+    // boxes in the file have origin in the bottom left corner
+    // we need to adjust the position to the top left corner
+
+    pos.y -= size.y;
+
+    s.setPosition(pos.x, pos.y);
+    s.setDimensions(size.x, size.y);
+    s.setTexture(texture_id);
+    s.setTrapType(type);
+
+
+    return  EXIT_SUCCESS;
+}
+
+
+/**
  * @brief Attempt to load map data from an XML file.
  * 
  * @param filename Name of the XML file to load.
@@ -195,6 +299,7 @@ int MapData::LoadMap(const char* filename) {
         throw std::runtime_error("Failed to find <map> root element.");
     }
 
+    // use XMLHandle with automatic nullptr checks
     XMLHandle rootHandle(root);
     
     XMLNode* barriers = rootHandle.FirstChildElement("barriers").FirstChildElement("barrier").ToNode();
@@ -220,6 +325,20 @@ int MapData::LoadMap(const char* filename) {
             Site s;
             if(parseSiteNode(node, s) == 0) {
                 MapData::sites[s.getTeam()] = std::make_shared<Site>(s);
+            }
+        }
+    }
+
+    XMLNode* traps = rootHandle.FirstChildElement("traps").FirstChildElement("trap").ToNode();
+    if(traps == nullptr) {
+        throw std::runtime_error("Failed to find traps in the map data.");
+    }
+    else {
+        // extract map traps
+        for(XMLNode* node = traps; node != nullptr; node = node->NextSiblingElement("trap")) {
+            Trap t;
+            if(parseTrapNode(node, t) == 0) {
+                AddTrap(t);
             }
         }
     }
@@ -282,7 +401,19 @@ bool MapData::CheckCollision(Player& player, PointF& correctedPos) {
                 }
                 // check is the player is walking on the trap (where movement settings should be modified for the next update)
                 else if(object->getType() == MapObjType::TRAP) {
-                    
+                    if(
+                        correctedPos.x >= object->getPosition().x &&
+                        correctedPos.x <= object->getPosition().x + object->getWidth() &&
+                        correctedPos.y >= object->getPosition().y &&
+                        correctedPos.y <= object->getPosition().y + object->getHeight()
+                    ) 
+                    {
+                        auto trap = dynamic_cast<Trap*>(object.get());
+
+                        player.setNextAcceleration(trap->getAccelerationCoefficient());
+                        player.setNextFriction(trap->getFrictionCoefficient());
+                        player.setNextSpeedCap(trap->getMaxSpeed());
+                    }
                 }
             }
         }

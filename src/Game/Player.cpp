@@ -58,16 +58,15 @@ void Player::importUpdates(data_packets::PlayerKeyStates data, float direction) 
     this->acceleration.y = 0.0f;
 
     // apply acceleration based on key states
-    if(this->keyStates.w) this->acceleration.y -= PLAYER_ACCELERATION;
-    if(this->keyStates.s) this->acceleration.y += PLAYER_ACCELERATION;
-    if(this->keyStates.a) this->acceleration.x -= PLAYER_ACCELERATION;
-    if(this->keyStates.d) this->acceleration.x += PLAYER_ACCELERATION;
+    if(this->keyStates.w) this->acceleration.y -= PLAYER_ACCELERATION * this->nextAcceleration_k;
+    if(this->keyStates.s) this->acceleration.y += PLAYER_ACCELERATION * this->nextAcceleration_k;
+    if(this->keyStates.a) this->acceleration.x -= PLAYER_ACCELERATION * this->nextAcceleration_k;
+    if(this->keyStates.d) this->acceleration.x += PLAYER_ACCELERATION * this->nextAcceleration_k;
 
 }
 
 void Player::update(float deltaTime) {
 
-    // TODO: UPDATE POSTURE
     // raise and event on posture break
     // moves slower when posture == 0
     // starts healing within 3s after last hit (when posture < 100)
@@ -84,7 +83,8 @@ void Player::update(float deltaTime) {
             }
         }
     }
-    
+
+    float current_friction = this->nextFriction_k * PLAYER_FRICTION;
 
     PointF newPosition = { this->position.x, this->position.y };
 
@@ -98,25 +98,29 @@ void Player::update(float deltaTime) {
     // apply friction if no keys are pressed
     if(!this->keyStates.a && !this->keyStates.d) {
         if(this->velocity.x > 0) {
-            this->velocity.x -= PLAYER_FRICTION * deltaTime;
+            this->velocity.x -= current_friction * deltaTime;
             if(this->velocity.x < 0) this->velocity.x = 0;
         } else if(this->velocity.x < 0) {
-            this->velocity.x += PLAYER_FRICTION * deltaTime;
+            this->velocity.x += current_friction * deltaTime;
             if(this->velocity.x > 0) this->velocity.x = 0;
         }
     }
     if(!this->keyStates.w && !this->keyStates.s) {
         if(this->velocity.y > 0) {
-            this->velocity.y -= PLAYER_FRICTION * deltaTime;
+            this->velocity.y -= current_friction * deltaTime;
             if(this->velocity.y < 0) this->velocity.y = 0;
         } else if(this->velocity.y < 0) {
-            this->velocity.y += PLAYER_FRICTION * deltaTime;
+            this->velocity.y += current_friction * deltaTime;
             if(this->velocity.y > 0) this->velocity.y = 0;
         }
     }
 
     // determine speed limit (players are slower when concussed)
     float speed_cap = (this->posture == 0) ? PLAYER_MAX_SPEED_SLOWED : (hasFlag) ? PLAYER_MAX_SPEED_CARRYING : PLAYER_MAX_SPEED;
+    // override the speed cap if needed (because of traps)
+    if(speed_cap > nextSpeedCap) {
+        speed_cap = nextSpeedCap;
+    }
 
     // clamp velocity
     if(this->velocity.x > speed_cap) this->velocity.x = speed_cap;
@@ -141,6 +145,12 @@ void Player::update(float deltaTime) {
         this->velocity.x = -speed_cap / 1.4142f;
         this->velocity.y = -speed_cap / 1.4142f;
     }
+
+    // reset movement settings
+    this->nextAcceleration_k = 1.0f;
+    this->nextFriction_k = 1.0f;
+    this->nextSpeedCap = PLAYER_MAX_SPEED;
+
 
     // update position
     newPosition.x += this->velocity.x * deltaTime;
@@ -219,4 +229,17 @@ void Player::freezeControls() {
 
 void Player::unfreezeControls() {
     this->controlsFreezed = false;
+}
+
+
+void Player::setNextFriction(float fk) {
+    this->nextFriction_k = fk;
+}
+
+void Player::setNextAcceleration(float ak) {
+    this->nextAcceleration_k = ak;
+}
+
+void Player::setNextSpeedCap(float s) {
+    this->nextSpeedCap = s;
 }

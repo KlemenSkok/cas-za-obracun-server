@@ -5,6 +5,7 @@
 
 #include "Communication/PacketTypes.hpp"
 #include "Containers.hpp"
+#include "Utilities/Constants.hpp"
 
 #include <cstdint>
 
@@ -28,6 +29,11 @@ class Player {
 
     bool controlsFreezed;
 
+    // dynamic movement settings
+    float nextFriction_k;
+    float nextAcceleration_k;
+    float nextSpeedCap;
+
 public:
 
     PointF position;
@@ -43,7 +49,10 @@ public:
         projectileTriggered(false),
         controlsFreezed(false),
         posture(100),
-        hasFlag(false)
+        hasFlag(false),
+        nextSpeedCap(PLAYER_MAX_SPEED),
+        nextFriction_k(PLAYER_FRICTION),
+        nextAcceleration_k(PLAYER_ACCELERATION)
     {
         position.x = position.y = 0.0f;
         velocity.x = velocity.y = 0.0f;
@@ -74,4 +83,9 @@ public:
 
     void freezeControls();
     void unfreezeControls();
+
+    void setNextFriction(float);
+    void setNextAcceleration(float);
+    void setNextSpeedCap(float);
+
 };
