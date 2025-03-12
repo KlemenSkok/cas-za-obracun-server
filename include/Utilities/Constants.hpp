@@ -62,7 +62,7 @@
 // -- FLAGS -- //
 #define GAME_FLAG_SIZE { 100, 60 } // [px] w, h
 #define GAME_FLAG_PICKUP_RANGE 100 // [px] from center of the flag
-#define GAME_FLAG_HOME_POS_X 1480 // [px] x, y
+#define GAME_FLAG_HOME_POS_X 1530 // [px] x, y
 #define GAME_FLAG_HOME_POS_Y 140 // [px] x, y
 #define GAME_FLAG_HOME_POS {GAME_FLAG_HOME_POS_X, GAME_FLAG_HOME_POS_Y} // [px] x, y
 

@@ -205,39 +205,38 @@
             <size w="50" h="50" />
             <texture id="02" />
         </barrier>
-
-        
-        <!-- sofa (03) -->
-        <barrier>
-            <position x="1212" y="947" />
-            <size w="200" h="90" />
-            <texture id="003" />
-        </barrier>
-        <barrier>
-            <position x="1434" y="947" />
-            <size w="200" h="90" />
-            <texture id="003" />
-        </barrier>
-        <barrier>
-            <position x="1655" y="947" />
-            <size w="200" h="90" />
-            <texture id="003" />
-        </barrier>
         
         <!-- pillar (04) -->
         <barrier>
             <position x="1271" y="710" />
             <size w="60" h="60" />
-            <texture id="04" />
+            <texture id="03" />
         </barrier>
         <barrier>
             <position x="1499" y="710" />
             <size w="60" h="60" />
-            <texture id="04" />
+            <texture id="03" />
         </barrier>
         <barrier>
             <position x="1740" y="710" />
             <size w="60" h="60" />
+            <texture id="03" />
+        </barrier>
+        
+        <!-- sofa (03) -->
+        <barrier>
+            <position x="1212" y="947" />
+            <size w="200" h="90" />
+            <texture id="04" />
+        </barrier>
+        <barrier>
+            <position x="1434" y="947" />
+            <size w="200" h="90" />
+            <texture id="04" />
+        </barrier>
+        <barrier>
+            <position x="1655" y="947" />
+            <size w="200" h="90" />
             <texture id="04" />
         </barrier>
         
@@ -245,7 +244,7 @@
         <barrier>
             <position x="1470" y="510" />
             <size w="120" h="240" />
-            <texture id="05" />
+            <texture id="06" />
         </barrier>
         <barrier>
             <position x="845" y="628" />
@@ -287,23 +286,24 @@
     <traps>
         <!-- ice trap -->
         <trap>
-            <position x="1457" y="637" />
-            <size w="150" h="114" />
-            <texture id="06" />
+            <position x="1433" y="647" />
+            <size w="194" h="132" />
+            <texture id="10" />
             <type name="water" />
         </trap>
         <!-- sand trap -->
         <trap>
-            <position x="1003" y="726" />
-            <size w="94" h="138" />
-            <texture id="07" />
+            <position x="991" y="748" />
+            <size w="243" h="141" />
+            <texture id="11" />
             <type name="sand" />
         </trap>
         <trap>
-            <position x="1946" y="626" />
-            <size w="151" h="98" />
-            <texture id="07" />
+            <position x="1838" y="685" />
+            <size w="243" h="141" />
+            <texture id="11" />
             <type name="sand" />
         </trap>
     </traps>
 </map>
+
