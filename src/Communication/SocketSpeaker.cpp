@@ -104,22 +104,27 @@ void SocketSpeaker::Speak(UDPsocket socket) noexcept {
 
     Logger::info("Socket speaker running.");
 
+    std::unique_ptr<UDPmessage> msg = nullptr;
+    std::queue<std::unique_ptr<UDPmessage>> msgBuffer;
+
     // start after successful initialization
     SocketSpeaker::_running = true;
     while(SocketSpeaker::_running && !SocketSpeaker::_shutdown) {
         
-        std::unique_ptr<UDPmessage> msg = nullptr;
-
         {
             std::lock_guard<std::mutex> lock(sendq_mutex);
             if(!sendQueue.empty()) {
-                msg = std::move(sendQueue.front());
+                msgBuffer.push(std::move(sendQueue.front()));
                 sendQueue.pop();
             }
         }
 
         // check for a new packet
-        if (msg) {
+        while (!msgBuffer.empty()) {
+
+            msg = std::move(msgBuffer.front());
+            msgBuffer.pop();
+
             // copy the message to the packet
             packet->channel = msg.get()->channel; // server uporablja channele, zato ga je treba poslat zraven
             packet->len = msg.get()->len;
@@ -143,7 +148,7 @@ void SocketSpeaker::Speak(UDPsocket socket) noexcept {
             //Logger::info("Poslal brez napak!");
 
         }
-        
+
         if(!SocketSpeaker::_running) {
             break;
         }

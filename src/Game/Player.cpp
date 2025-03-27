@@ -184,6 +184,12 @@ bool Player::isInteracting() {
 }
 
 void Player::dealPostureDamage() {
+
+    // to keep the game more fair dont take damage if the player is already concussed
+    if(this->posture == 0) {
+        return;
+    }
+
     this->posture -= PROJECTILE_POSTURE_DAMAGE;
     if(this->posture <= 0) {
         this->posture = 0;

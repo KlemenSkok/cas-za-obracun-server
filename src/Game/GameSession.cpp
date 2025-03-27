@@ -147,7 +147,7 @@ void GameSession::processPacket(PacketData data) {
     this->clients[client_id]->updateLastRecvPacketID(packet_id);
     this->clients[client_id]->updateLastRecvPacketTime();
 
-    // todo
+
     switch((PacketType)packet_type) {
         case PacketType::PLAYER_UPDATES:
             // process players in range
