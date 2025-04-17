@@ -386,7 +386,7 @@ void GameSession::updateEverything(float deltaTime) {
         p.second->update(deltaTime);
     }
 
-    // update projeciles
+    // update projectiles
     for(auto it = projectiles.begin(); it != projectiles.end();  ) {
         it->second->update(deltaTime);
         if(it->second->isOutOfRange()) {

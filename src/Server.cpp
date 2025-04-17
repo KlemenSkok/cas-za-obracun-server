@@ -297,23 +297,24 @@ void Server::checkClientInactivity() {
     static std::chrono::steady_clock::time_point lastCheckTime = std::chrono::steady_clock::now();
 
     if(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - lastCheckTime).count() > INACTIVITY_CHECK_INTERVAL)  {
-        for(auto& s : _sessions) {
-            auto inactive_clients = s.second->getInactiveClients();
+
+        for(auto it = _sessions.begin(); it != _sessions.end(); ) {
+            auto inactive_clients = it->second->getInactiveClients();
+            uint8_t session_id = it->first;
+            it++;
             if(!inactive_clients.empty()) {
                 for(auto c_id : inactive_clients) {
-                    
                     PacketData d(true);
                     d.flags() |= (1 << FLAG_ACK); // acknowledge the FIN
                     d.flags() |= (1 << FLAG_FIN); // send FIN back
                     addMessageToQueue(d, Server::getClientAddr(c_id));
 
-                    Server::removeClient(c_id, s.first);
+                    Server::removeClient(c_id, session_id);
                     Logger::info((std::string("Removed inactive client. ID: " + std::to_string(c_id))).c_str());
                 }
             }
-            if(_sessions.empty())
-                break;
         }
+
         lastCheckTime = std::chrono::steady_clock::now();
     }
 

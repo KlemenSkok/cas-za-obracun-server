@@ -5,8 +5,8 @@
 #include "include/Logging/Logger.hpp"
 #include "include/Utilities/Utility.hpp"
 
-#define PORT_OUT 42068 // port for outgoing traffic (speak)
-#define PORT_IN 42069 // port for incoming traffic (listen)
+#define PORT_OUT 55001 // port for outgoing traffic (speak)
+#define PORT_IN 55000 // port for incoming traffic (listen)
 
 
 int main(int argc, char *argv[]) {
