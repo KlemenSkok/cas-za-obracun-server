@@ -9,7 +9,7 @@
 
 
 // communication constants
-#define INACTIVITY_TIMEOUT 10 // 60s
+#define INACTIVITY_TIMEOUT 10 // 10s
 #define INACTIVITY_CHECK_INTERVAL 1000 // 1s
 #define MAX_PACKET_SIZE 512
 
@@ -72,7 +72,7 @@
 #define PLAYERS_START_POS_T1 { 1084, 670 }, { 1084, 775 }
 #define PLAYERS_START_POS_T2 {1940, 670}, {1940, 775}
 
-#define NUMBER_OF_ROUNDS 3
+#define NUMBER_OF_ROUNDS 5
 
 #define GAME_STATE_UPDATE_PERIOD 1000 // [ms] send game state packet every 1 second
 

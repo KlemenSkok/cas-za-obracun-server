@@ -54,7 +54,8 @@ public:
         nextFriction_k(PLAYER_FRICTION),
         nextAcceleration_k(PLAYER_ACCELERATION)
     {
-        position.x = position.y = 0.0f;
+        position.x = 1534.0f;
+        position.y = 228.0f;
         velocity.x = velocity.y = 0.0f;
         acceleration.x = acceleration.y = 0.0f;
         lastDamageTime = lastHealTime = SDL_GetTicks();
