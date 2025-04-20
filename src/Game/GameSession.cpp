@@ -17,8 +17,6 @@ void GameSession::initialize() {
     this->score = std::vector<uint8_t>(2, 0);
 
     //std::cout << "Waiting for players...\n";
-    // for debugging:
-    //this->currentState = GameState::WAITING_NEXT_ROUND;
 }
 
 bool GameSession::isFull() const {

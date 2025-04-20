@@ -50,6 +50,11 @@ public:
         controlsFreezed(false),
         posture(100),
         hasFlag(false),
+        isConcussed(false),
+        interactionTriggered(false),
+        keyStates(KeyStates()),
+        direction(0.0f),
+        teamNumber(0),
         nextSpeedCap(PLAYER_MAX_SPEED),
         nextFriction_k(PLAYER_FRICTION),
         nextAcceleration_k(PLAYER_ACCELERATION)
@@ -58,7 +63,7 @@ public:
         position.y = 228.0f;
         velocity.x = velocity.y = 0.0f;
         acceleration.x = acceleration.y = 0.0f;
-        lastDamageTime = lastHealTime = SDL_GetTicks();
+        lastDamageTime = lastHealTime = lastProjectileTime = SDL_GetTicks();
     }
     ~Player() = default;
     uint16_t get_id();

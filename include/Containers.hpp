@@ -11,7 +11,7 @@
 #include <cstring>
 #include <vector>
 
-// tukaj so definirane strukture za celoten server
+// tukaj so definirane strukture za celoten server (edit: verjetno ne vse)
 
 
 // --------------------------------------- //

@@ -15,7 +15,10 @@ class Site {
 
 public:
 
-    Site() = default;
+    Site() :
+        position({0.0f, 0.0f}),
+        size(Point{ 0, 0 }),
+        teamNumber(0) {}
 
     void setPosition(const PointF&);
     PointF getPosition() const;

@@ -64,7 +64,7 @@ void PacketData::reset() {
 }
 
 Uint8& PacketData::flags() {
-    if(data.size() < 0)
+    if(data.size() <= 0)
         data.push_back(0);
     return data[0];
 }
@@ -119,27 +119,3 @@ void PacketData::getByOffset(float& target, size_t size, size_t offset) {
     Uint32 host_order = SDLNet_Read32(&network_order);
     std::memcpy(&target, &host_order, sizeof(float)); // Reinterpret as float
 }
-
-
-
-// template funkcije premaknjene direkt v header
-/*
-template<typename T>
-void PacketData::append(T data) {
-    // resize the vector and append the data
-    size_t current_size = this->data.size();
-    this->data.resize(current_size + sizeof(T)); // resize vector
-    std::memcpy(&this->data[current_size], &data, sizeof(T)); // append data
-}
-*/
-/*
-template<typename T>
-void PacketData::getByOffset(size_t offset, size_t size, T& target) {
-    if(offset + size > data.size()) {
-        Logger::warn("Offset out of bounds - PacketData::getByOffset().");
-        return;
-    }
-
-    std::memcpy(&target, &data[offset], size);
-}
-*/

@@ -86,7 +86,7 @@ void Server::Cleanup() {
     SocketListener::Stop();
     SocketSpeaker::Stop();
 
-    // this was causing a double free
+    // this was causing a double free:
     //SDLNet_UDP_Close(SocketSpeaker::getSocket());
     //SDLNet_UDP_Close(SocketListener::getSocket());
 }
@@ -156,12 +156,9 @@ void Server::processNewPackets() {
                 recv_msg->data = d.getRawData();
                 
                 Logger::info(("New client connected. Client ID: " + std::to_string(client_id) + ", Session ID: " + std::to_string(session_id)).c_str());
-                std::cout << "IP: " << formatIP(recv_msg->ip->host) << ":" << SDLNet_Read16(&recv_msg->ip->host) << "\n\n";
+                //std::cout << "IP: " << formatIP(recv_msg->ip->host) << ":" << SDLNet_Read16(&recv_msg->ip->host) << "\n\n";
 
                 addMessageToQueue(std::move(recv_msg));
-                //if(std::shared_ptr<Client> c_ptr = _sessions[session_id]->getClient(client_id).lock()) {
-                //    std::cout << "Last packet time: " << c_ptr->getLastPacketID() << '\n';
-                //}
 
                 continue;
             }
