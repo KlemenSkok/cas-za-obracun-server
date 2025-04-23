@@ -7,6 +7,7 @@
 #define SERVER_TICK_RATE 30 // [Hz]
 #define SESSION_UPDATE_DELAY 1000 / SERVER_TICK_RATE // [ms]
 
+#define ASSETS_PATH "../../assets/"
 
 // communication constants
 #define INACTIVITY_TIMEOUT 10 // 10s

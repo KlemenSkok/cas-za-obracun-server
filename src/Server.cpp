@@ -72,7 +72,7 @@ void Server::Setup(uint16_t port_in, uint16_t port_out) {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     try {
-        MapData::LoadMap("../../assets/data/map_data.xml");
+        MapData::LoadMap(ASSETS_PATH"data/map_data.xml");
     }
     catch(std::runtime_error &e) {
         throw std::runtime_error(std::string("Failed to load map data: ") + e.what());
