@@ -55,20 +55,14 @@ void Server::Run() {
  * @param i port to listen on
  * @param o port to send from
  */
-void Server::Setup(uint16_t port_in, uint16_t port_out) {
+void Server::Setup(uint16_t port) {
     try {
-        SocketListener::Start(port_in);
+        SocketHandler::Start(port);
     }
     catch (std::runtime_error &e) {
         throw std::runtime_error(std::string("Failed to start listening thread: ") + e.what());
     }
 
-    try {
-        SocketSpeaker::Start(port_out);
-    }
-    catch (std::runtime_error &e) {
-        throw std::runtime_error(std::string("Failed to start speaking thread: ") + e.what());
-    }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     try {
@@ -83,12 +77,8 @@ void Server::Setup(uint16_t port_in, uint16_t port_out) {
 void Server::Cleanup() {
     Logger::info("Cleaning up...");
 
-    SocketListener::Stop();
-    SocketSpeaker::Stop();
+    SocketHandler::Stop();
 
-    // this was causing a double free:
-    //SDLNet_UDP_Close(SocketSpeaker::getSocket());
-    //SDLNet_UDP_Close(SocketListener::getSocket());
 }
 
 
@@ -135,7 +125,7 @@ void Server::processNewPackets() {
                     Logger::warn("Failed to add a new client.");
                     continue;
                 }
-                if(SDLNet_UDP_Bind(SocketListener::getSocket(), client_id, recv_msg->ip.get()) == -1) {
+                if(SDLNet_UDP_Bind(SocketHandler::getSocket(), client_id, recv_msg->ip.get()) == -1) {
                     remove_client();
                     Logger::warn("Failed to add a new client.");
                     continue;
@@ -276,7 +266,7 @@ void Server::manageGameSessions() {
 
         if(it->second->isEnding()) {
             auto tmp = it++;
-            Server::removeSession(tmp->first, SocketListener::getSocket());
+            Server::removeSession(tmp->first, SocketHandler::getSocket());
         }
         else ++it;
     }
@@ -369,7 +359,7 @@ void Server::removeClient(uint16_t c_id) {
         return;
     }
 
-    SDLNet_UDP_Unbind(SocketListener::getSocket(), c_id); 
+    SDLNet_UDP_Unbind(SocketHandler::getSocket(), c_id); 
 
     _sessions[session_id]->removeClient(c_id);
     if(_sessions[session_id]->size() == 0) {
@@ -384,13 +374,13 @@ void Server::removeClient(uint16_t c_id, uint8_t s_id) {
         return;
     }
 
-    SDLNet_UDP_Unbind(SocketListener::getSocket(), c_id);
+    SDLNet_UDP_Unbind(SocketHandler::getSocket(), c_id);
     _free_client_ids.insert(c_id);
     
     _sessions[s_id]->removeClient(c_id);
     if(_sessions[s_id]->size() == 0) {
         // terminate session if empty
-        Server::removeSession(s_id, SocketListener::getSocket());
+        Server::removeSession(s_id, SocketHandler::getSocket());
     }
 }
 

@@ -5,8 +5,7 @@
 #include "include/Logging/Logger.hpp"
 #include "include/Utilities/Utility.hpp"
 
-#define PORT_OUT 55001 // port for outgoing traffic (speak)
-#define PORT_IN 55000 // port for incoming traffic (listen)
+#define COMM_PORT 55000 // port for all traffic
 
 
 int main(int argc, char *argv[]) {
@@ -16,7 +15,7 @@ int main(int argc, char *argv[]) {
     }
 
     try {
-        Server::Setup(PORT_IN, PORT_OUT);
+        Server::Setup(COMM_PORT);
     }
     catch(std::runtime_error &e) {
         Logger::error(e.what());

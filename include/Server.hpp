@@ -4,8 +4,7 @@
 #pragma once
 
 #include "Game/GameSession.hpp"
-#include "Communication/SocketListener.hpp"
-#include "Communication/SocketSpeaker.hpp"
+#include "Communication/SocketHandler.hpp"
 #include "Containers.hpp"
 
 #include <set>
@@ -20,7 +19,7 @@ class Server {
 
 public:
     // main server functions
-    static void Setup(uint16_t i, uint16_t o);
+    static void Setup(uint16_t port);
     static void Run();
     static void Cleanup();
     

@@ -1,25 +1,11 @@
 # Game Server for 'Čas za obračun'
 
 
+Stvar je končana. Ta branch je popravljena verzija (po oddaji, zato ni uradna in ma svoj branch).
+<hr>
+Server tuki uporablja isti port za oboje - pošiljanje in sprejemanje, port 55000. 
+Problem prej je bil, da je NAT naredu translation samo za IN port, ne pa za OUT, zato so se paketi izgubil, fw jih droppa.
+<hr>
+Uglavnem, zdej dela tudi preko interneta.
 
-Test UDP packet se poslje s komando (netcat)<br>
-`nc -u 127.0.0.1 42069 <<< "message"`
-
-sintaksa:<br>
-`nc -u <server-ip> <target-port> <<< "msg"`
-
-<br>
-Testiranje v powershell:<br> 
-
-```PS
-$udpClient = New-Object System.Net.Sockets.UdpClient
-$serverIp = "192.168.64.110"
-$port = 42069
-$message = "Pozdravljen server!"
-$bytes = [System.Text.Encoding]::UTF8.GetBytes($message)
-$udpClient.Send($bytes, $bytes.Length, $serverIp, $port)
-$udpClient.Close()
-```
-
-Zaenkrat je treba killat task da ga ugasneš:<br>
-> `kill -9 PID`
+Lp
