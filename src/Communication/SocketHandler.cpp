@@ -10,7 +10,7 @@
 #include <utility>
 #include <chrono>
 
-#define LOOP_DELAY 1 // delay in ms
+#define LOOP_DELAY 100 // delay in us
 
 
 // ------------------------------------------------- //
@@ -167,13 +167,16 @@ void SocketHandler::Work(UDPsocket socket) noexcept {
 
     Logger::info("Socket handler running.");
 
+    // buffer for outgoing packets
+    std::queue<std::unique_ptr<UDPmessage>> msgBuffer;
+
     // start after successful initialization
     SocketHandler::_running = true;
-    Uint32 lastUpdate = SDL_GetTicks();
+    auto lastUpdate = std::chrono::high_resolution_clock::now();
     while(SocketHandler::_running && !SocketHandler::_shutdown) {
-        Uint32 now = SDL_GetTicks();
-        if(now - lastUpdate < LOOP_DELAY) {
-            std::this_thread::sleep_for(std::chrono::microseconds(100));
+        auto now = std::chrono::high_resolution_clock::now();
+        if(now - lastUpdate < std::chrono::microseconds(LOOP_DELAY)) {
+            std::this_thread::sleep_for(std::chrono::microseconds(LOOP_DELAY));
             continue;
         }
         lastUpdate = now;
@@ -213,14 +216,18 @@ void SocketHandler::Work(UDPsocket socket) noexcept {
 
         {
             std::lock_guard<std::mutex> lock(sendq_mutex);
-            if(!sendQueue.empty()) {
-                msg = std::move(sendQueue.front());
+            while(!sendQueue.empty()) {
+                msgBuffer.push(std::move(sendQueue.front()));
                 sendQueue.pop();
             }
         }
 
-        // check for a new packet
-        if (msg) {
+        // check for new packets
+        while (!msgBuffer.empty()) {
+
+            msg = std::move(msgBuffer.front());
+            msgBuffer.pop();
+
             // copy the message to the packet
             send_packet->channel = msg.get()->channel; // server uporablja channele, zato ga je treba poslat zraven
             send_packet->len = msg.get()->len;
